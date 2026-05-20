@@ -31,15 +31,17 @@ export class AvuaSignUpPage {
     this.uploadResumeButton = page.getByRole('button', { name: /Upload Resume/i });
     this.resumeFileInput = page.locator('input[type="file"]');
     this.jobTitleInput = page
-      .getByLabel(/Job Title|Current Job Title|Role/i)
+      .getByLabel(/Job Title\*?|Current Job Title|Role/i)
+      .or(page.getByRole('textbox', { name: /Job Title\*?/i }))
       .or(page.getByPlaceholder(/Job Title|Current Job Title|Role/i))
       .first();
     this.emailInput = page
-      .getByLabel(/Email|Email Address/i)
+      .getByLabel(/Email Address\*?|Email\*?/i)
+      .or(page.getByRole('textbox', { name: /Email Address\*?/i }))
       .or(page.getByPlaceholder(/Email|Email Address/i))
       .first();
     this.nationalityDropdown = page
-      .getByLabel(/Nationality/i)
+      .getByLabel(/Nationality\*?/i)
       .or(page.getByRole('combobox', { name: /Nationality/i }))
       .or(page.getByPlaceholder(/Search nationality/i))
       .or(page.getByRole('textbox', { name: /Search nationality/i }))
@@ -91,10 +93,24 @@ export class AvuaSignUpPage {
   }
 
   async waitForAiPrefill(): Promise<void> {
-    // Wait for post-upload form to render first, then verify AI prefill populated core field(s).
-    await expect(this.createMyAccountButton).toBeVisible({ timeout: 45000 });
-    await expect(this.jobTitleInput).toBeVisible({ timeout: 45000 });
-    await expect(this.jobTitleInput).toBeEnabled({ timeout: 45000 });
+    // Step 1: Wait for both loading states to disappear before asserting the form is ready.
+    // The app shows two sequential loaders after upload:
+    //   (a) "Processing Your Document..." — server-side parse
+    //   (b) "Analyzing your resume and pre-filling details…" — AI prefill
+    // Racing directly against createMyAccountButton causes a 45 s timeout when AI is slow.
+    await this.page
+      .getByText(/Analyzing your resume/i)
+      .waitFor({ state: 'hidden', timeout: 90000 })
+      .catch(() => {
+        // Loader may never appear (e.g. instant response) — not a failure.
+      });
+
+    // Step 2: Now assert the fully-rendered form and submit CTA are present.
+    await expect(this.createMyAccountButton).toBeVisible({ timeout: 30000 });
+    await expect(this.jobTitleInput).toBeVisible({ timeout: 30000 });
+    await expect(this.jobTitleInput).toBeEnabled({ timeout: 30000 });
+
+    // Step 3: Confirm AI actually prefilled at least one core field.
     await expect
       .poll(
         async () => {
@@ -103,9 +119,9 @@ export class AvuaSignUpPage {
           return Math.max(jobTitleLen, emailLen);
         },
         {
-        timeout: 45000,
-        message: 'Expected at least one key field to be prefilled by AI resume analysis.',
-      },
+          timeout: 15000,
+          message: 'Expected at least one key field (Job Title or Email) to be prefilled by AI resume analysis.',
+        },
       )
       .toBeGreaterThan(0);
   }
