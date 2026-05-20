@@ -7,7 +7,7 @@ export default defineConfig({
   reporter: [['html']],
   use: {
     baseURL: 'https://avua.com',
-    screenshot: 'only-on-failure',
+    screenshot: 'on',
     video: 'retain-on-failure',
     trace: 'retain-on-failure',
   },

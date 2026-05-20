@@ -48,10 +48,16 @@ export class AvuaSignUpPage {
       .getByRole('button', { name: /Create My Account|Create Account/i })
       .or(page.getByText(/Create my account|Create My Account|Create Account/i))
       .first();
-    this.signInLinkSuccessMessage = page.getByText(
-      /we have sent a secured sign-in link to/i,
-      { exact: false },
-    );
+    this.signInLinkSuccessMessage = page
+      .getByRole('heading', {
+        name: /we(?:['’]| ha)?ve sent a secur(?:e|ed)\s+sign[\-‑–—]?in link to/i,
+      })
+      .or(
+        page.getByText(/we(?:['’]| ha)?ve sent a secur(?:e|ed)\s+sign[\-‑–—]?in link to/i, {
+          exact: false,
+        }),
+      )
+      .first();
   }
 
   async gotoHomePage(): Promise<void> {
@@ -151,13 +157,48 @@ export class AvuaSignUpPage {
   }
 
   async submitCreateAccount(): Promise<void> {
-    await this.createMyAccountButton.click();
+    const successMessage = this.signInLinkSuccessMessage.first();
+    const createAccountButton = this.createMyAccountButton.first();
+
+    // The UI may already be on success screen by the time this step executes.
+    await expect
+      .poll(
+        async () => {
+          if (await successMessage.isVisible().catch(() => false)) {
+            return 'success';
+          }
+          if (await createAccountButton.isVisible().catch(() => false)) {
+            return 'submit';
+          }
+          return 'none';
+        },
+        {
+          timeout: 20000,
+          message: 'Expected either success card or Create Account button to be visible.',
+        },
+      )
+      .toMatch(/success|submit/);
+
+    if (await successMessage.isVisible().catch(() => false)) {
+      return;
+    }
+
+    await createAccountButton.scrollIntoViewIfNeeded();
+    await expect(createAccountButton).toBeEnabled({ timeout: 20000 });
+    await createAccountButton.click();
   }
 
   async assertSuccessMessage(email: string): Promise<void> {
+    const escapedEmail = email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     await expect(this.signInLinkSuccessMessage).toBeVisible({ timeout: 10000 });
     await expect(
-      this.page.getByText(new RegExp(`we have sent a secured sign-in link to\\s*${email}`, 'i')),
+      this.page.getByText(
+        new RegExp(
+          `we(?:['’]| ha)?ve sent a secur(?:e|ed)\\s+sign[\\-‑–—]?in link to\\s*${escapedEmail}`,
+          'i',
+        ),
+      ),
     ).toBeVisible({ timeout: 10000 });
   }
 }
