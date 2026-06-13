@@ -97,7 +97,7 @@ export class AvuaEmployerPage {
       for (const el of candidates) {
         const key = Object.keys(el).find(k => k.startsWith('__reactFiber$'));
         if (!key) continue;
-        let f = el[key];
+        let f = (el as any)[key];
         while (f) {
           let hook = f.memoizedState;
           while (hook) {
@@ -217,7 +217,7 @@ export class AvuaEmployerPage {
       if (!pubEl) return false;
       const key = Object.keys(pubEl).find(k => k.startsWith('__reactFiber$'));
       if (!key) return false;
-      let f = pubEl[key];
+      let f = (pubEl as any)[key];
       while (f) {
         if (f.memoizedProps && typeof f.memoizedProps.onClick === 'function') {
           f.memoizedProps.onClick();
