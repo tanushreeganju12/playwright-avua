@@ -11,10 +11,13 @@ export default defineConfig({
     ['./utils/jiraReporter.ts']
   ],
   use: {
-    baseURL: 'https://avua.com',
+    baseURL: 'https://demo.avua.online',
     screenshot: 'on',
-    video: 'retain-on-failure',
-    trace: 'retain-on-failure',
-    viewport: { width: 1920, height: 1080 },
+    video: 'on',
+    trace: 'on',
+    viewport: null,
+    launchOptions: {
+      args: ['--start-maximized']
+    },
   },
 });
