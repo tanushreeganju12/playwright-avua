@@ -69,6 +69,12 @@ export default class JiraReporter implements Reporter {
         issuetype: {
           name: "Bug",
         },
+        customfield_10115: {
+          value: "Functional"
+        },
+        customfield_10076: {
+          value: "High"
+        }
       },
     };
 
