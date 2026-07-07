@@ -274,7 +274,7 @@ test.describe('C1 - Required Field Validation', () => {
     await test.info().attach('All Required Field Errors', { body: fullPageScreenshot, contentType: 'image/png' });
 
     // Assertion: All 5 required field errors are visible simultaneously
-    await expect(page.getByText('First name is required')).toBeHidden(); // INTENTIONAL FAILURE FOR JIRA
+    await expect(page.getByText('First name is required')).toBeVisible();
     await expect(page.getByText('Email is required')).toBeVisible();
     await expect(page.getByText('Phone number is required')).toBeVisible();
     await expect(page.getByText('Designation is required')).toBeVisible();
