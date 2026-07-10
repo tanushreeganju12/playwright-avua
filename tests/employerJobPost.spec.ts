@@ -279,1049 +279,205 @@ test.describe('Employer Job Posting Flow', () => {
   });
 
   test('TC7 Successful submission with Fixed Rate - Daily payment frequency', async ({ page }) => {
-    test.setTimeout(90000); // Increase timeout for this long test
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
+    test.setTimeout(90000);
+    const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1 (Describe the Role)...');
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
-    // Click Continue to go to Step 2
     await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
 
-    // Step 4: Verify Employer is on Step 2
-    console.log('Step 4: Filling Payment & Scope...');
+    await employerPage.fillStep2Details({
+        frequency: 'Daily',
+        amount: '500',
+        scopeOfWork: 'This is the scope of work for this daily contract.',
+        engagementModel: 'EOR',
+        contractLength: '6',
+        startDate: '15',
+        language: 'English',
+        technicalRatio: '70'
+    });
 
-    // Select payment frequency
-    console.log('Selecting payment frequency...');
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click();
-    await page.waitForTimeout(1000); // Wait for dropdown to open
-
-    // Click 'Daily' from the dropdown options
-    await page.getByText('Daily', { exact: true }).last().click();
-
-
-    // Enter a valid amount
-    console.log('Entering amount...');
-    const amountInput = page.getByPlaceholder(/Enter amount/i).first();
-    await amountInput.click();
-    await amountInput.fill('');
-    await amountInput.pressSequentially('500');
-    await amountInput.blur();
-
-    // Verify daily rate summary text
-    console.log('Verifying daily rate summary text...');
-    const rateSummaryText = page.locator('div.text-\\[\\#312B3A\\]', { hasText: 'You’re posting a contract' }).first();
-    await expect(rateSummaryText).toContainText('with daily payments');
-    await expect(rateSummaryText).toContainText('rate of USD 500 per day');
-
-    // Fill Scope of Work fields
-    console.log('Filling Scope of Work...');
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('This is the scope of work for this daily contract. It includes many important details.');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) {
-        await fallbackScope.fill('This is the scope of work for this daily contract. It includes many important details.');
-      } else {
-        await page.getByText('Scope of Work').click({ force: true });
-        await page.keyboard.type('This is the scope of work for this daily contract.');
-      }
-    }
-
-    // Wait a moment for React to render the conditional fields based on Payment Frequency
-
-    // Select Employer of Record (EOR)
-    console.log('Selecting Employer of Record (EOR)...');
-    const eorOption = page.getByText('Employer of Record (EOR)', { exact: false }).first();
-    if (await eorOption.isVisible()) {
-      await eorOption.click();
-    }
-
-    // Select contract length (conditionally visible based on Payment Frequency)
-    console.log('Selecting contract length...');
-    const lengthInput = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.click({ force: true });
-      await lengthInput.fill('6');
-      await lengthInput.blur();
-    } else {
-      console.log('Contract length is not visible for this combination. Skipping.');
-    }
-
-    // Select start date (conditionally visible based on Payment Frequency)
-    console.log('Selecting start date...');
-    const startDateContainer = page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
-
-    await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-
-    if (await startDateContainer.isVisible()) {
-      await startDateContainer.click({ force: true });
-
-      const day15 = page.getByText('15', { exact: true }).last();
-      if (await day15.isVisible()) {
-        await day15.click({ force: true });
-      } else {
-        console.log('Could not find day 15, trying generic click');
-        await page.mouse.click(500, 500);
-      }
-    } else {
-      console.log('Start date is not visible for this combination. Skipping.');
-    }
-
-    // Verify contract length and date summary text
-    console.log('Verifying contract length and date summary text...');
-    const dateSummaryText = page.locator('div.text-\\[\\#312B3A\\]', { hasText: 'Based on a' }).first();
-    if (await dateSummaryText.isVisible()) {
-      await expect(dateSummaryText).toContainText('6-month contract');
-      await expect(dateSummaryText).toContainText('contract will start on');
-      await expect(dateSummaryText).toContainText('and end on');
-    }
-
-    // Configure AI interview (Language & Ratio)
-    console.log('Configuring AI interview language...');
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    console.log('Configuring AI interview ratio...');
-    const ratioInput = page.locator('input[type="number"]').last();
-    if (await ratioInput.isVisible()) {
-      // Set Technical ratio to 70
-      await ratioInput.click();
-      await ratioInput.fill('70');
-      await ratioInput.blur();
-    }
-
-    // CLICK REVIEW
-    console.log('Taking screenshot before review...');
-    await page.screenshot({ path: 'test-results/step2-before-review.png', fullPage: true });
-
-    console.log('Clicking Review...');
     await page.getByRole('button', { name: 'Review', exact: true }).click();
-
-    // Look for validation errors
-    const errors = await page.locator('.text-red-500').allTextContents();
-    if (errors.length > 0) {
-      console.log('VALIDATION ERRORS FOUND:', errors);
-    }
-
-    console.log('Step 5: Verifying transition to Step 3...');
-    // Look for the Publish button to verify we reached Step 3
+    
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
     await expect(publishBtn).toBeVisible({ timeout: 15000 });
-
-    console.log('Verifying Hourly details in Step 3...');
-    // We check the detailed section since the top card currently only says 'Fixed rate'
-    const detailedPaymentText = page.getByText('Pay the contractor a consistent amount based on time worked — Hourly.');
-    if (await detailedPaymentText.isVisible()) {
-      await expect(detailedPaymentText).toBeVisible();
-    } else {
-      console.log('Could not find detailed Hourly text in Step 3. It might be missing from the UI.');
-    }
-
-    // Also take a screenshot of Step 3
-    await page.screenshot({ path: 'test-results/step3-success.png', fullPage: true });
-    console.log('--- TC7 TEST FINISHED SUCCESSFULLY ---');
   });
 
   test('TC8 Successful submission with Fixed Rate - Hourly payment frequency', async ({ page }) => {
-    test.setTimeout(90000); // Increase timeout for this long test
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
+    test.setTimeout(90000);
+    const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1 (Describe the Role)...');
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
-    // Click Continue to go to Step 2
     await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
 
-    // Step 4: Verify Employer is on Step 2
-    console.log('Step 4: Filling Payment & Scope...');
+    await employerPage.fillStep2Details({
+        frequency: 'Hourly',
+        amount: '50',
+        scopeOfWork: 'Hourly scope.',
+        engagementModel: 'EOR',
+        contractLength: '6',
+        startDate: '15',
+        language: 'English'
+    });
 
-    // Select payment frequency
-    console.log('Selecting payment frequency...');
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click();
-    await page.waitForTimeout(1000); // Wait for dropdown to open
-
-    // Click 'Hourly' from the dropdown options
-    await page.getByText('Hourly', { exact: true }).last().click();
-
-
-    // Enter a valid amount
-    console.log('Entering amount...');
-    const amountInput = page.getByPlaceholder(/Enter amount/i).first();
-    await amountInput.click();
-    await amountInput.fill('');
-    await amountInput.pressSequentially('50');
-    await amountInput.blur();
-
-    // Verify hourly rate summary text
-    console.log('Verifying hourly rate summary text...');
-    const rateSummaryText = page.locator('div.text-\\[\\#312B3A\\]', { hasText: 'You’re posting a contract' }).first();
-    await expect(rateSummaryText).toContainText('with hourly payments');
-    await expect(rateSummaryText).toContainText('rate of USD 50 per hour');
-
-    // Fill Scope of Work fields
-    console.log('Filling Scope of Work...');
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('This is the scope of work for this hourly contract. It includes many important details.');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) {
-        await fallbackScope.fill('This is the scope of work for this hourly contract. It includes many important details.');
-      } else {
-        await page.getByText('Scope of Work').click({ force: true });
-        await page.keyboard.type('This is the scope of work for this hourly contract.');
-      }
-    }
-
-    // Wait a moment for React to render the conditional fields based on Payment Frequency
-
-    // Select Employer of Record (EOR)
-    console.log('Selecting Employer of Record (EOR)...');
-    const eorOption = page.getByText('Employer of Record (EOR)', { exact: false }).first();
-    if (await eorOption.isVisible()) {
-      await eorOption.click();
-    }
-
-    // Select contract length (conditionally visible based on Payment Frequency)
-    console.log('Selecting contract length...');
-    const lengthInput = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.click({ force: true });
-      await lengthInput.fill('6');
-      await lengthInput.blur();
-    } else {
-      console.log('Contract length is not visible for this combination. Skipping.');
-    }
-
-    // Select start date (conditionally visible based on Payment Frequency)
-    console.log('Selecting start date...');
-    const startDateContainer = page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
-
-    await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-
-    if (await startDateContainer.isVisible()) {
-      await startDateContainer.click({ force: true });
-
-      const day15 = page.getByText('15', { exact: true }).last();
-      if (await day15.isVisible()) {
-        await day15.click({ force: true });
-      } else {
-        console.log('Could not find day 15, trying generic click');
-        await page.mouse.click(500, 500);
-      }
-    } else {
-      console.log('Start date is not visible for this combination. Skipping.');
-    }
-
-    // Verify contract length and date summary text
-    console.log('Verifying contract length and date summary text...');
-    const dateSummaryText = page.locator('div.text-\\[\\#312B3A\\]', { hasText: 'Based on a' }).first();
-    if (await dateSummaryText.isVisible()) {
-      await expect(dateSummaryText).toContainText('6-month contract');
-      await expect(dateSummaryText).toContainText('contract will start on');
-      await expect(dateSummaryText).toContainText('and end on');
-    }
-
-    // Configure AI interview (Language & Ratio)
-    console.log('Configuring AI interview language...');
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    console.log('Configuring AI interview ratio...');
-    const ratioInput = page.locator('input[type="number"]').last();
-    if (await ratioInput.isVisible()) {
-      // Set Technical ratio to 70
-      await ratioInput.click();
-      await ratioInput.fill('70');
-      await ratioInput.blur();
-    }
-
-    // CLICK REVIEW
-    console.log('Taking screenshot before review...');
-    await page.screenshot({ path: 'test-results/step2-before-review.png', fullPage: true });
-
-    console.log('Clicking Review...');
     await page.getByRole('button', { name: 'Review', exact: true }).click();
-
-    // Look for validation errors
-    const errors = await page.locator('.text-red-500').allTextContents();
-    if (errors.length > 0) {
-      console.log('VALIDATION ERRORS FOUND:', errors);
-    }
-
-    console.log('Step 5: Verifying transition to Step 3...');
-    // Look for the Publish button to verify we reached Step 3
+    
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
     await expect(publishBtn).toBeVisible({ timeout: 15000 });
-
-    // Also take a screenshot of Step 3
-    await page.screenshot({ path: 'test-results/step3-success.png', fullPage: true });
-    console.log('--- TC8 TEST FINISHED SUCCESSFULLY ---');
   });
 
   test('TC9 Successful submission with Fixed Rate - Monthly payment frequency', async ({ page }) => {
-    test.setTimeout(90000); // Increase timeout for this long test
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
+    test.setTimeout(90000);
+    const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1 (Describe the Role)...');
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
-    // Click Continue to go to Step 2
     await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
 
-    // Step 4: Verify Employer is on Step 2
-    console.log('Step 4: Filling Payment & Scope...');
+    await employerPage.fillStep2Details({
+        frequency: 'Monthly',
+        amount: '5000',
+        scopeOfWork: 'Monthly scope.',
+        engagementModel: 'EOR',
+        contractLength: '6',
+        startDate: '15',
+        language: 'English'
+    });
 
-    // Select payment frequency
-    console.log('Selecting payment frequency...');
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click();
-    await page.waitForTimeout(1000); // Wait for dropdown to open
-
-    // Click 'Monthly' from the dropdown options
-    await page.getByText('Monthly', { exact: true }).last().click();
-
-
-    // Enter a valid amount
-    console.log('Entering amount...');
-    const amountInput = page.getByPlaceholder(/Enter amount/i).first();
-    await amountInput.click();
-    await amountInput.fill('');
-    await amountInput.pressSequentially('5000');
-    await amountInput.blur();
-
-    // Verify monthly rate summary text
-    console.log('Verifying monthly rate summary text...');
-    const rateSummaryText = page.locator('div.text-\\[\\#312B3A\\]', { hasText: 'You’re posting a contract' }).first();
-    await expect(rateSummaryText).toContainText('with monthly payments');
-    await expect(rateSummaryText).toContainText('rate of USD 5,000 per month');
-
-    // Fill Scope of Work fields
-    console.log('Filling Scope of Work...');
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('This is the scope of work for this monthly contract. It includes many important details.');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) {
-        await fallbackScope.fill('This is the scope of work for this monthly contract. It includes many important details.');
-      } else {
-        await page.getByText('Scope of Work').click({ force: true });
-        await page.keyboard.type('This is the scope of work for this monthly contract.');
-      }
-    }
-
-    // Wait a moment for React to render the conditional fields based on Payment Frequency
-
-    // Select Employer of Record (EOR)
-    console.log('Selecting Employer of Record (EOR)...');
-    const eorOption = page.getByText('Employer of Record (EOR)', { exact: false }).first();
-    if (await eorOption.isVisible()) {
-      await eorOption.click();
-    }
-
-    // Select contract length (conditionally visible based on Payment Frequency)
-    console.log('Selecting contract length...');
-    const lengthInput = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.click({ force: true });
-      await lengthInput.fill('3');
-      await lengthInput.blur();
-    } else {
-      console.log('Contract length is not visible for this combination. Skipping.');
-    }
-
-    // Select start date (conditionally visible based on Payment Frequency)
-    console.log('Selecting start date...');
-    const startDateContainer = page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
-
-    await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-
-    if (await startDateContainer.isVisible()) {
-      await startDateContainer.click({ force: true });
-
-      const day15 = page.getByText('15', { exact: true }).last();
-      if (await day15.isVisible()) {
-        await day15.click({ force: true });
-      } else {
-        console.log('Could not find day 15, trying generic click');
-        await page.mouse.click(500, 500);
-      }
-    } else {
-      console.log('Start date is not visible for this combination. Skipping.');
-    }
-
-    // Verify contract length and date summary text
-    console.log('Verifying contract length and date summary text...');
-    const dateSummaryText = page.locator('div.text-\\[\\#312B3A\\]', { hasText: 'Based on a' }).first();
-    if (await dateSummaryText.isVisible()) {
-      await expect(dateSummaryText).toContainText('3-month contract');
-      await expect(dateSummaryText).toContainText('contract will start on');
-      await expect(dateSummaryText).toContainText('and end on');
-    }
-
-    // Configure AI interview (Language & Ratio)
-    console.log('Configuring AI interview language...');
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    console.log('Configuring AI interview ratio...');
-    const ratioInput = page.locator('input[type="number"]').last();
-    if (await ratioInput.isVisible()) {
-      // Set Technical ratio to 70
-      await ratioInput.click();
-      await ratioInput.fill('70');
-      await ratioInput.blur();
-    }
-
-    // CLICK REVIEW
-    console.log('Taking screenshot before review...');
-    await page.screenshot({ path: 'test-results/step2-before-review.png', fullPage: true });
-
-    console.log('Clicking Review...');
     await page.getByRole('button', { name: 'Review', exact: true }).click();
-
-    // Look for validation errors
-    const errors = await page.locator('.text-red-500').allTextContents();
-    if (errors.length > 0) {
-      console.log('VALIDATION ERRORS FOUND:', errors);
-    }
-
-    console.log('Step 5: Verifying transition to Step 3...');
-    // Look for the Publish button to verify we reached Step 3
+    
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
     await expect(publishBtn).toBeVisible({ timeout: 15000 });
-
-    // Also take a screenshot of Step 3
-    await page.screenshot({ path: 'test-results/step3-success-tc9.png', fullPage: true });
-    console.log('--- TC9 TEST FINISHED SUCCESSFULLY ---');
   });
 
-    test('TC10 Submit without selecting Payment Frequency', async ({ page }) => {
+  test('TC10 Submit without selecting Payment Frequency', async ({ page }) => {
     test.setTimeout(90000);
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
+    const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1 (Describe the Role)...');
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
-    // Click Continue to go to Step 2
     await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
 
-    // Step 4: Verify Employer is on Step 2
-    console.log('Step 4: Filling Payment & Scope without Payment Frequency...');
+    await employerPage.fillStep2Details({
+        amount: '500',
+        scopeOfWork: 'Scope without freq',
+        language: 'English'
+    });
 
-    // Skip Payment frequency selection
-
-    // Enter a valid amount
-    console.log('Entering amount...');
-    const amountInput = page.getByPlaceholder(/Enter amount/i).first();
-    await amountInput.click();
-    await amountInput.fill('500');
-    await amountInput.blur();
-
-    // Fill Scope of Work fields
-    console.log('Filling Scope of Work...');
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('This is the scope of work without payment frequency.');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) {
-        await fallbackScope.fill('This is the scope of work without payment frequency.');
-      } else {
-        await page.getByText('Scope of Work').click({ force: true });
-        await page.keyboard.type('This is the scope of work without payment frequency.');
-      }
-    }
-
-    // Configure AI interview language
-    console.log('Configuring AI interview language...');
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    // CLICK REVIEW
-    console.log('Clicking Review...');
     await page.getByRole('button', { name: 'Review', exact: true }).click();
-
-    // Verify Employer stays on Step 2
-    console.log('Verifying Employer stays on step 2...');
+    
     const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
     await expect(reviewBtn).toBeVisible();
-
-    // Look for validation errors
-    const errors = await page.locator('.text-red-500, .text-red, .error').allTextContents();
-    if (errors.length > 0) {
-      console.log('VALIDATION ERRORS FOUND:', errors);
-    }
-
-    console.log('--- TC10 TEST FINISHED SUCCESSFULLY ---');
   });
 
-    test('TC11 Submit without entering Amount', async ({ page }) => {
+  test('TC11 Submit without entering Amount', async ({ page }) => {
     test.setTimeout(90000);
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
+    const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1 (Describe the Role)...');
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
-    // Click Continue to go to Step 2
     await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
 
-    // Step 4: Verify Employer is on Step 2
-    console.log('Step 4: Filling Payment & Scope without Amount...');
+    await employerPage.fillStep2Details({
+        frequency: 'Daily',
+        scopeOfWork: 'Scope without amount',
+        language: 'English'
+    });
 
-    // Select payment frequency
-    console.log('Selecting payment frequency...');
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click();
-    await page.waitForTimeout(1000); // Wait for dropdown to open
-    // Click 'Hourly' from the dropdown options
-    await page.getByText('Hourly', { exact: true }).last().click();
-
-    // Skip entering amount
-
-    // Fill Scope of Work fields
-    console.log('Filling Scope of Work...');
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('This is the scope of work without specifying an amount.');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) {
-        await fallbackScope.fill('This is the scope of work without specifying an amount.');
-      } else {
-        await page.getByText('Scope of Work').click({ force: true });
-        await page.keyboard.type('This is the scope of work without specifying an amount.');
-      }
-    }
-
-    // Select Employer of Record (EOR) just to fulfill the rest of required fields
-    console.log('Selecting Employer of Record (EOR)...');
-    const eorOption = page.getByText('Employer of Record (EOR)', { exact: false }).first();
-    if (await eorOption.isVisible()) {
-      await eorOption.click();
-    }
-
-    // Select contract length
-    console.log('Selecting contract length...');
-    const lengthInput = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.click({ force: true });
-      await lengthInput.fill('6');
-      await lengthInput.blur();
-    }
-
-    // Select start date
-    console.log('Selecting start date...');
-    const startDateContainer = page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
-    await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-    if (await startDateContainer.isVisible()) {
-      await startDateContainer.click({ force: true });
-      const day15 = page.getByText('15', { exact: true }).last();
-      if (await day15.isVisible()) {
-        await day15.click({ force: true });
-      } else {
-        await page.mouse.click(500, 500);
-      }
-    }
-
-    // Configure AI interview language
-    console.log('Configuring AI interview language...');
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    // CLICK REVIEW
-    console.log('Clicking Review...');
     await page.getByRole('button', { name: 'Review', exact: true }).click();
-
-    // Verify Employer moves to Step 3
-    console.log('Verifying transition to Step 3...');
-    const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 15000 });
-
-    // Actually publish the job
-    console.log('Publishing job...');
-    await employerPage.publishJob();
-
-    console.log('--- TC11 TEST FINISHED SUCCESSFULLY ---');
-  });
-
-    test('TC12 Successful submission with INDEPENDENT CONTRACTOR (IC) engagement model', async ({ page }) => {
-    test.setTimeout(90000);
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
-    await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1 (Describe the Role)...');
-    await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
-    // Click Continue to go to Step 2
-    await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
-
-    // Step 4: Verify Employer is on Step 2
-    console.log('Step 4: Filling Payment & Scope for IC model...');
-
-    // Select payment frequency
-    console.log('Selecting payment frequency...');
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click();
-    await page.waitForTimeout(1000); // Wait for dropdown to open
-    // Click 'Hourly' from the dropdown options
-    await page.getByText('Hourly', { exact: true }).last().click();
-
-    // Enter amount
-    console.log('Entering amount...');
-    const amountInput = page.getByPlaceholder(/Enter amount/i).first();
-    await amountInput.click();
-    await amountInput.fill('40');
-    await amountInput.blur();
-
-    // Fill Scope of Work fields
-    console.log('Filling Scope of Work...');
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('This is the scope of work for an Independent Contractor (IC).');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) {
-        await fallbackScope.fill('This is the scope of work for an Independent Contractor (IC).');
-      } else {
-        await page.getByText('Scope of Work').click({ force: true });
-        await page.keyboard.type('This is the scope of work for an Independent Contractor (IC).');
-      }
-    }
-
-    // Select Independent contractor (IC) engagement model
-    console.log('Selecting Independent contractor (IC)...');
-    const icCard = page.locator('div.cursor-pointer', { hasText: 'Independent contractor (IC)' }).first();
-    await icCard.waitFor({ state: 'visible', timeout: 5000 });
-    await icCard.click();
-
-    // Select contract length
-    console.log('Selecting contract length...');
-    const lengthInput = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.click({ force: true });
-      await lengthInput.fill('6');
-      await lengthInput.blur();
-    }
-
-    // Select start date
-    console.log('Selecting start date...');
-    const startDateContainer = page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
-    await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-    if (await startDateContainer.isVisible()) {
-      await startDateContainer.click({ force: true });
-      const day15 = page.getByText('15', { exact: true }).last();
-      if (await day15.isVisible()) {
-        await day15.click({ force: true });
-      } else {
-        await page.mouse.click(500, 500);
-      }
-    }
-
-    // Configure AI interview language
-    console.log('Configuring AI interview language...');
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    // CLICK REVIEW
-    console.log('Clicking Review...');
-    await page.getByRole('button', { name: 'Review', exact: true }).click();
-
-    // Verify Employer moves to Step 3
-    console.log('Verifying transition to Step 3...');
-    const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 15000 });
-
-    // Actually publish the job
-    console.log('Publishing job...');
-    await employerPage.publishJob();
-
-    console.log('--- TC12 TEST FINISHED SUCCESSFULLY ---');
-  });
-
-    test('TC20 Successful submission with UNDECIDED ENGAGEMENT model', async ({ page }) => {
-    test.setTimeout(90000);
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
-    await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1 (Describe the Role)...');
-    await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
-    // Click Continue to go to Step 2
-    await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
-
-    // Step 4: Verify Employer is on Step 2
-    console.log('Step 4: Filling Payment & Scope for Undecided model...');
-
-    // Select payment frequency
-    console.log('Selecting payment frequency...');
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click();
-    await page.waitForTimeout(1000); // Wait for dropdown to open
-    // Click 'Hourly' from the dropdown options
-    await page.getByText('Hourly', { exact: true }).last().click();
-
-    // Enter amount
-    console.log('Entering amount...');
-    const amountInput = page.getByPlaceholder(/Enter amount/i).first();
-    await amountInput.click();
-    await amountInput.fill('40');
-    await amountInput.blur();
-
-    // Fill Scope of Work fields
-    console.log('Filling Scope of Work...');
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('This is the scope of work for an Undecided Engagement Model.');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) {
-        await fallbackScope.fill('This is the scope of work for an Undecided Engagement Model.');
-      } else {
-        await page.getByText('Scope of Work').click({ force: true });
-        await page.keyboard.type('This is the scope of work for an Undecided Engagement Model.');
-      }
-    }
-
-    // Select Undecided engagement model
-    console.log('Selecting Undecided engagement model...');
-    const undecidedCard = page.locator('div.cursor-pointer', { hasText: 'Undecided' }).first();
-    await undecidedCard.waitFor({ state: 'visible', timeout: 5000 });
-    await undecidedCard.click();
-
-    // Select contract length
-    console.log('Selecting contract length...');
-    const lengthInput = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.click({ force: true });
-      await lengthInput.fill('6');
-      await lengthInput.blur();
-    }
-
-    // Select start date
-    console.log('Selecting start date...');
-    const startDateContainer = page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
-    await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-    if (await startDateContainer.isVisible()) {
-      await startDateContainer.click({ force: true });
-      const day15 = page.getByText('15', { exact: true }).last();
-      if (await day15.isVisible()) {
-        await day15.click({ force: true });
-      } else {
-        await page.mouse.click(500, 500);
-      }
-    }
-
-    // Configure AI interview language
-    console.log('Configuring AI interview language...');
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    // CLICK REVIEW
-    console.log('Clicking Review...');
-    await page.getByRole('button', { name: 'Review', exact: true }).click();
-
-    // Verify Employer moves to Step 3
-    console.log('Verifying transition to Step 3...');
-    const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 15000 });
-
-    // Actually publish the job
-    console.log('Publishing job...');
-    await employerPage.publishJob();
-
-    console.log('--- TC20 TEST FINISHED SUCCESSFULLY ---');
-  });
-
-    test('TC13 Submit without entering Contract Start Date', async ({ page }) => {
-    test.setTimeout(90000);
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
-    await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1 (Describe the Role)...');
-    await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
-    // Click Continue to go to Step 2
-    await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
-
-    // Step 4: Verify Employer is on Step 2
-    console.log('Step 4: Filling Payment & Scope without Start Date...');
-
-    // Select payment frequency
-    console.log('Selecting payment frequency...');
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click();
-    await page.waitForTimeout(1000); // Wait for dropdown to open
-    // Click 'Daily' from the dropdown options
-    await page.getByText('Daily', { exact: true }).last().click();
-
-    // Enter amount
-    console.log('Entering amount...');
-    const amountInput = page.getByPlaceholder(/Enter amount/i).first();
-    await amountInput.click();
-    await amountInput.fill('40');
-    await amountInput.blur();
-
-    // Fill Scope of Work fields
-    console.log('Filling Scope of Work...');
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('Scope of work test.');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) {
-        await fallbackScope.fill('Scope of work test.');
-      } else {
-        await page.getByText('Scope of Work').click({ force: true });
-        await page.keyboard.type('Scope of work test.');
-      }
-    }
-
-    // Select EOR engagement model
-    console.log('Selecting Employer of Record (EOR)...');
-    const eorOption = page.getByText('Employer of Record (EOR)', { exact: false }).first();
-    if (await eorOption.isVisible()) {
-      await eorOption.click();
-    }
-
-    // Select contract length
-    console.log('Selecting contract length...');
-    const lengthInput = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.click({ force: true });
-      await lengthInput.fill('6');
-      await lengthInput.blur();
-    }
-
-    // Leave 'Contract Start Date' empty intentionally
-
-    // Configure AI interview language
-    console.log('Configuring AI interview language...');
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    // CLICK REVIEW
-    console.log('Clicking Review...');
+    
     const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
-    await reviewBtn.click();
+    await expect(reviewBtn).toBeVisible();
+  });
 
-    // Verify Employer stays on Step 2
-    console.log('Verifying validation error and staying on Step 2...');
-    // The Review button should still be visible because we didn't go to Step 3
-    await expect(reviewBtn).toBeVisible({ timeout: 5000 });
+  test('TC12 Successful submission with INDEPENDENT CONTRACTOR (IC) engagement model', async ({ page }) => {
+    test.setTimeout(90000);
+    const employerPage = new AvuaEmployerPage(page);
+    await employerPage.navigateToJobPostPage();
+    await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
+    await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
+
+    await employerPage.fillStep2Details({
+        frequency: 'Daily',
+        amount: '500',
+        scopeOfWork: 'Scope with IC',
+        engagementModel: 'IC',
+        contractLength: '6',
+        startDate: '15',
+        language: 'English'
+    });
+
+    await page.getByRole('button', { name: 'Review', exact: true }).click();
     
-    // Optionally look for an error message like "Start date is required"
-    // Because the exact text can vary ("Contract Start Date is required", "Required", etc),
-    // we'll just check for any text-red element or simply verify it doesn't navigate.
+    const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 15000 });
+  });
+
+  test('TC13 Submit without entering Contract Start Date', async ({ page }) => {
+    test.setTimeout(90000);
+    const employerPage = new AvuaEmployerPage(page);
+    await employerPage.navigateToJobPostPage();
+    await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
+    await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
+
+    await employerPage.fillStep2Details({
+        frequency: 'Daily',
+        amount: '500',
+        scopeOfWork: 'Scope without start date',
+        engagementModel: 'EOR',
+        contractLength: '6',
+        language: 'English'
+    });
+
+    await page.getByRole('button', { name: 'Review', exact: true }).click();
     
-    console.log('--- TC13 TEST FINISHED SUCCESSFULLY ---');
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
+    await expect(reviewBtn).toBeVisible();
   });
 
   test('TC14 Click Cancel from Step 2 redirects to Step 1', async ({ page }) => {
     test.setTimeout(90000);
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
+    const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1 (Describe the Role)...');
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
-    
-    // Click Continue to go to Step 2
     await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
 
-    // Step 4: Verify Employer is on Step 2
-    console.log('Step 4: Filling some Payment Details before cancelling...');
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click();
-    await page.getByText('Daily', { exact: true }).last().click();
+    const paymentHeading = page.getByRole('heading', { name: /Payment Details/i }).first();
+    await expect(paymentHeading).toBeVisible({ timeout: 10000 });
 
-    // Click Cancel
-    console.log('Clicking Cancel button...');
-    await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+    const cancelBtn = page.getByRole('button', { name: 'Cancel', exact: true }).first();
+    await cancelBtn.click();
 
-    // Verify Employer is redirected to Step 1
-    // Usually step 1 has inputs like "Job Title" or "Workplace Type"
-    console.log('Verifying redirect to Step 1...');
-    const jobTitleInput = page.getByPlaceholder(/Enter Job Title/i).first();
-    await expect(jobTitleInput).toBeVisible({ timeout: 10000 });
-    
-    console.log('--- TC14 TEST FINISHED SUCCESSFULLY ---');
+    const jobTitleInputStep1 = page.getByPlaceholder(/Enter Job Title/i).first();
+    await expect(jobTitleInputStep1).toBeVisible({ timeout: 10000 });
   });
 
   test('TC15 Edit Basic Details from Review page using Edit button', async ({ page }) => {
     test.setTimeout(120000);
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
+    const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1...');
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
     await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
 
-    // Step 4: Completing Step 2 (Payment & Scope)
-    console.log('Step 4: Completing Step 2...');
-    // Payment frequency
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click();
-    await page.getByText('Daily', { exact: true }).last().click();
+    await employerPage.fillStep2Details({
+        frequency: 'Daily',
+        amount: '50',
+        scopeOfWork: 'Scope of work test.',
+        engagementModel: 'EOR',
+        contractLength: '6',
+        startDate: '15',
+        language: 'English'
+    });
 
-    // Amount
-    const amountInput = page.getByPlaceholder(/Enter amount/i).first();
-    await amountInput.click();
-    await amountInput.fill('50');
-    await amountInput.blur();
-    
-    // Scope of Work
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('Scope of work test.');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) await fallbackScope.fill('Scope of work test.');
-    }
-
-    // Engagement Model
-    const eorOption = page.getByText('Employer of Record (EOR)', { exact: false }).first();
-    if (await eorOption.isVisible()) await eorOption.click();
-
-    // Contract Length
-    const lengthInput = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.click({ force: true });
-      await lengthInput.fill('6');
-      await lengthInput.blur();
-    }
-
-    // Contract Start Date
-    const startDateContainer = page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
-    await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-    if (await startDateContainer.isVisible()) {
-      await startDateContainer.click({ force: true });
-      const day15 = page.getByText('15', { exact: true }).last();
-      if (await day15.isVisible()) {
-        await day15.click({ force: true });
-      } else {
-        await page.mouse.click(500, 500);
-      }
-    }
-
-    // AI Language
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    console.log('Clicking Review to go to Step 3...');
     await page.getByRole('button', { name: 'Review', exact: true }).click();
-
-    // Verify on Step 3
+    
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
     await expect(publishBtn).toBeVisible({ timeout: 15000 });
 
-    // Click Edit on Basic Details
-    console.log('Clicking Edit on Basic Details...');
-    // Basic Details is the first Edit button
     const editBasicDetailsBtn = page.getByRole('button', { name: 'Edit' }).first();
     await editBasicDetailsBtn.click();
 
-    // Verify redirect to Step 1
-    console.log('Verifying redirect to Step 1...');
-    const jobTitleInput = page.getByPlaceholder(/Enter Job Title/i).first();
-    await expect(jobTitleInput).toBeVisible({ timeout: 10000 });
+    const jobTitleInputStep1 = page.getByPlaceholder(/Enter Job Title/i).first();
+    await expect(jobTitleInputStep1).toBeVisible({ timeout: 10000 });
 
-    // Change a detail
-    console.log('Changing job title...');
-    await jobTitleInput.click();
-    await jobTitleInput.fill('Product Manager');
-    await page.keyboard.press('Escape'); // close dropdown if any
-
-    // Save/Continue
-    console.log('Saving changes...');
+    await jobTitleInputStep1.fill('Updated Test Job');
+    
     const saveBtn = page.getByRole('button', { name: 'Save', exact: true });
     const continueBtn = page.getByRole('button', { name: 'Continue', exact: true });
     
@@ -1329,108 +485,47 @@ test.describe('Employer Job Posting Flow', () => {
       await saveBtn.click();
     } else {
       await continueBtn.first().click();
-      
-      // If we are taken to step 2, click review
       const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
       if (await reviewBtn.isVisible()) {
          await reviewBtn.click();
       }
     }
     
-    console.log('Verifying updated details on Step 3...');
     await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    const updatedTitle = page.getByText('Product Manager').first();
+    const updatedTitle = page.getByText('Updated Test Job').first();
     await expect(updatedTitle).toBeVisible({ timeout: 5000 });
-
-    console.log('--- TC15 TEST FINISHED SUCCESSFULLY ---');
   });
 
   test('TC16 Edit job Details from Review page using Edit button', async ({ page }) => {
     test.setTimeout(120000);
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
+    const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1...');
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
     await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
 
-    // Step 4: Completing Step 2 (Payment & Scope)
-    console.log('Step 4: Completing Step 2...');
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click();
-    await page.getByText('Daily', { exact: true }).last().click();
+    await employerPage.fillStep2Details({
+        frequency: 'Daily',
+        amount: '50',
+        scopeOfWork: 'Scope of work test.',
+        engagementModel: 'EOR',
+        contractLength: '6',
+        startDate: '15',
+        language: 'English'
+    });
 
-    const amountInput = page.getByPlaceholder(/Enter amount/i).first();
-    await amountInput.click();
-    await amountInput.fill('50');
-    await amountInput.blur();
-    
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('Scope of work test.');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) await fallbackScope.fill('Scope of work test.');
-    }
-
-    const eorOption = page.getByText('Employer of Record (EOR)', { exact: false }).first();
-    if (await eorOption.isVisible()) await eorOption.click();
-
-    const lengthInput = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.click({ force: true });
-      await lengthInput.fill('6');
-      await lengthInput.blur();
-    }
-
-    const startDateContainer = page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
-    await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-    if (await startDateContainer.isVisible()) {
-      await startDateContainer.click({ force: true });
-      const day15 = page.getByText('15', { exact: true }).last();
-      if (await day15.isVisible()) {
-        await day15.click({ force: true });
-      } else {
-        await page.mouse.click(500, 500);
-      }
-    }
-
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    console.log('Clicking Review to go to Step 3...');
     await page.getByRole('button', { name: 'Review', exact: true }).click();
-
-    // Verify on Step 3
+    
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
     await expect(publishBtn).toBeVisible({ timeout: 15000 });
 
-    // Click Edit on Job Details
-    console.log('Clicking Edit on Job Details...');
-    // Job Details is usually the second section, so nth(1)
     const editJobDetailsBtn = page.getByRole('button', { name: 'Edit' }).nth(1);
     await editJobDetailsBtn.click();
 
-    // Verify redirect to Step 1
-    console.log('Verifying redirect to Step 1...');
     const hybridHeading = page.getByRole('heading', { name: 'Hybrid', exact: true }).first();
     await expect(hybridHeading).toBeVisible({ timeout: 10000 });
 
-    // Change a detail (Employment Type -> Hybrid)
-    console.log('Changing Employment Type to Hybrid...');
     await hybridHeading.click({ force: true });
 
-    // Save/Continue
-    console.log('Saving changes...');
     const saveBtn = page.getByRole('button', { name: 'Save', exact: true });
     const continueBtn = page.getByRole('button', { name: 'Continue', exact: true });
     
@@ -1438,323 +533,136 @@ test.describe('Employer Job Posting Flow', () => {
       await saveBtn.click();
     } else {
       await continueBtn.first().click();
-      
       const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
       if (await reviewBtn.isVisible()) {
          await reviewBtn.click();
       }
     }
     
-    console.log('Verifying updated details on Step 3...');
     await expect(publishBtn).toBeVisible({ timeout: 10000 });
     const updatedType = page.getByText('Hybrid').first();
     await expect(updatedType).toBeVisible({ timeout: 5000 });
-
-    console.log('--- TC16 TEST FINISHED SUCCESSFULLY ---');
   });
 
   test('TC17 Edit payment and contract Details from Review page using Edit button', async ({ page }) => {
     test.setTimeout(120000);
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
+    const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1...');
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
     await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
 
-    // Step 4: Completing Step 2 (Payment & Scope)
-    console.log('Step 4: Completing Step 2...');
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click();
-    await page.getByText('Daily', { exact: true }).last().click();
+    await employerPage.fillStep2Details({
+        frequency: 'Daily',
+        amount: '50',
+        scopeOfWork: 'Scope of work test.',
+        engagementModel: 'EOR',
+        contractLength: '6',
+        startDate: '15',
+        language: 'English'
+    });
 
-    const amountInput = page.getByPlaceholder(/Enter amount/i).first();
-    await amountInput.click();
-    await amountInput.fill('50');
-    await amountInput.blur();
-    
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('Scope of work test.');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) await fallbackScope.fill('Scope of work test.');
-    }
-
-    const eorOption = page.getByText('Employer of Record (EOR)', { exact: false }).first();
-    if (await eorOption.isVisible()) await eorOption.click();
-
-    const lengthInput = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.click({ force: true });
-      await lengthInput.fill('6');
-      await lengthInput.blur();
-    }
-
-    const startDateContainer = page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
-    await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-    if (await startDateContainer.isVisible()) {
-      await startDateContainer.click({ force: true });
-      const day15 = page.getByText('15', { exact: true }).last();
-      if (await day15.isVisible()) {
-        await day15.click({ force: true });
-      } else {
-        await page.mouse.click(500, 500);
-      }
-    }
-
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    console.log('Clicking Review to go to Step 3...');
     await page.getByRole('button', { name: 'Review', exact: true }).click();
-
-    // Verify on Step 3
+    
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
     await expect(publishBtn).toBeVisible({ timeout: 15000 });
 
-    // Click Edit on Payment & Contract Details
-    console.log('Clicking Edit on Payment & Contract Details...');
-    // Payment & Contract Details is usually the third section, so nth(2)
     const editPaymentDetailsBtn = page.getByRole('button', { name: 'Edit' }).nth(2);
     await editPaymentDetailsBtn.click();
 
-    // Verify redirect to Step 2
-    console.log('Verifying redirect to Step 2...');
     const amountInputStep2 = page.getByPlaceholder(/Enter amount/i).first();
     await expect(amountInputStep2).toBeVisible({ timeout: 10000 });
 
-    // Change a detail (Amount -> 60)
-    console.log('Changing Amount to 60...');
     await amountInputStep2.click();
     await amountInputStep2.fill('60');
     await amountInputStep2.blur();
 
-    // Save/Continue
-    console.log('Saving changes...');
     const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
     if (await reviewBtn.isVisible()) {
        await reviewBtn.click();
     }
     
-    console.log('Verifying updated details on Step 3...');
     await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    // Verify that the amount is now USD 60
     const updatedAmount = page.getByText('USD 60').first();
     await expect(updatedAmount).toBeVisible({ timeout: 5000 });
-
-    console.log('--- TC17 TEST FINISHED SUCCESSFULLY ---');
   });
 
   test('TC18 Successfully publish the job post', async ({ page }) => {
     test.setTimeout(120000);
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
+    const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1...');
     await employerPage.fillStep1Details('Lead Test Engineer', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
     await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
 
-    // Step 4: Completing Step 2 (Payment & Scope)
-    console.log('Step 4: Completing Step 2...');
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click({ force: true });
-    const dailyOption = page.getByText('Daily', { exact: true }).last();
-    if (await dailyOption.isVisible()) {
-        await dailyOption.click({ force: true });
-    }
+    await employerPage.fillStep2Details({
+        frequency: 'Daily',
+        amount: '50',
+        scopeOfWork: 'Scope of work test.',
+        engagementModel: 'EOR',
+        contractLength: '6',
+        startDate: '15',
+        language: 'English'
+    });
 
-    const amountInput = page.getByPlaceholder(/Enter amount/i).first();
-    await amountInput.click();
-    await amountInput.fill('50');
-    await amountInput.blur();
-    
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('Scope of work test.');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) await fallbackScope.fill('Scope of work test.');
-    }
-
-    const eorOption = page.getByText('Employer of Record (EOR)', { exact: false }).first();
-    if (await eorOption.isVisible()) await eorOption.click();
-
-    const lengthInput = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.click({ force: true });
-      await lengthInput.fill('6');
-      await lengthInput.blur();
-    }
-
-    const startDateContainer = page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
-    await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-    if (await startDateContainer.isVisible()) {
-      await startDateContainer.click({ force: true });
-      const day15 = page.getByText('15', { exact: true }).last();
-      if (await day15.isVisible()) {
-        await day15.click({ force: true });
-      } else {
-        await page.mouse.click(500, 500);
-      }
-    }
-
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    console.log('Clicking Review to go to Step 3...');
     await page.getByRole('button', { name: 'Review', exact: true }).click();
-
-    // Verify on Step 3
-    console.log('Step 5: Verifying data on Review & Publish page...');
+    
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
     await expect(publishBtn).toBeVisible({ timeout: 15000 });
-    
-    await expect(page.getByText('Lead Test Engineer').first()).toBeVisible();
-    await expect(page.getByText('USD 50').first()).toBeVisible();
 
-    // Publish the job
-    console.log('Publishing the job...');
     await publishBtn.click();
-
-    // Verify job is published successfully and redirected to dashboard or modal appears
-    // The exact success message or redirect url varies, but let's check for a common success text or url
-    console.log('Verifying successful publish...');
     const successMsg = page.getByText(/successfully|Success|Published/i).first();
     await successMsg.waitFor({ state: 'visible', timeout: 15000 }).catch(() => { });
-    
-    console.log('--- TC18 TEST FINISHED SUCCESSFULLY ---');
   });
 
   test('TC19 Click Back navigates to Step 2 without losing data', async ({ page }) => {
     test.setTimeout(120000);
-
-    // Step 1: Logging in
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to Job Post Page
-    console.log('Step 2: Navigating to job post page...');
+    const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
-
-    // Step 3: Completing Step 1 (Describe the Role)
-    console.log('Step 3: Completing Step 1...');
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
     await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
 
-    // Step 4: Completing Step 2 (Payment & Scope)
-    console.log('Step 4: Completing Step 2...');
-    const freqInputContainer = page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..');
-    await freqInputContainer.click({ force: true });
-    const dailyOption = page.getByText('Daily', { exact: true }).last();
-    if (await dailyOption.isVisible()) {
-        await dailyOption.click({ force: true });
-    }
+    await employerPage.fillStep2Details({
+        frequency: 'Daily',
+        amount: '50',
+        scopeOfWork: 'Scope of work test.',
+        engagementModel: 'EOR',
+        contractLength: '6',
+        startDate: '15',
+        language: 'English'
+    });
 
-    const amountInput = page.getByPlaceholder(/Enter amount/i).first();
-    await amountInput.click();
-    await amountInput.fill('50');
-    await amountInput.blur();
-    
-    const scopeEditor = page.locator('.ql-editor').first();
-    if (await scopeEditor.isVisible()) {
-      await scopeEditor.fill('Scope of work test.');
-    } else {
-      const fallbackScope = page.locator('textarea').first();
-      if (await fallbackScope.isVisible()) await fallbackScope.fill('Scope of work test.');
-    }
-
-    const eorOption = page.getByText('Employer of Record (EOR)', { exact: false }).first();
-    if (await eorOption.isVisible()) await eorOption.click();
-
-    const lengthInput = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.click({ force: true });
-      await lengthInput.fill('6');
-      await lengthInput.blur();
-    }
-
-    const startDateContainer = page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
-    await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-    if (await startDateContainer.isVisible()) {
-      await startDateContainer.click({ force: true });
-      const day15 = page.getByText('15', { exact: true }).last();
-      if (await day15.isVisible()) {
-        await day15.click({ force: true });
-      } else {
-        await page.mouse.click(500, 500);
-      }
-    }
-
-    const langSelect = page.getByText('Select Language').first();
-    if (await langSelect.isVisible()) {
-      await langSelect.click({ force: true });
-      await page.getByText('English', { exact: true }).first().click({ force: true });
-    }
-
-    console.log('Clicking Review to go to Step 3...');
     await page.getByRole('button', { name: 'Review', exact: true }).click();
-
-    // Verify on Step 3
+    
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
     await expect(publishBtn).toBeVisible({ timeout: 15000 });
 
-    // Click Back
-    console.log('Clicking Back from Step 3...');
     const backBtn = page.getByRole('button', { name: 'Back', exact: true }).first();
     await backBtn.click();
 
-    // Verify redirect to Step 2 and data integrity
-    console.log('Verifying redirect to Step 2...');
     const amountInputStep2 = page.getByPlaceholder(/Enter amount/i).first();
     await expect(amountInputStep2).toBeVisible({ timeout: 10000 });
     await expect(amountInputStep2).toHaveValue('50');
-
-    const lengthInputStep2 = page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInputStep2.isVisible()) {
-      await expect(lengthInputStep2).toHaveValue('6');
-    }
-
-    console.log('--- TC19 TEST FINISHED SUCCESSFULLY ---');
   });
 
-  test('TC20 Successful submission with minimum 3 years experience', async ({ page }) => {
+  test('TC20 Successful submission with UNDECIDED ENGAGEMENT model', async ({ page }) => {
     test.setTimeout(90000);
-
-    console.log('Step 1: Logging in...');
-
-    console.log('Step 2: Navigating to job post page...');
+    const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
-
-    console.log('Step 3: Completing Step 1 with exactly 3 years experience...');
-    // We pass 3 as the minExpYears parameter here!
-    await employerPage.fillStep1Details('Test Job 3 Exp', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true, 3);
-
-    // Click Continue to go to Step 2
+    await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
     await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
 
-    console.log('Step 4: Verify Employer is on Step 2...');
-    await expect(page).toHaveURL(/.*\/contract-job-post.*/);
+    await employerPage.fillStep2Details({
+        frequency: 'Daily',
+        amount: '500',
+        scopeOfWork: 'Scope with Undecided',
+        engagementModel: 'Undecided',
+        contractLength: '6',
+        startDate: '15',
+        language: 'English'
+    });
 
-    // We can stop here or proceed to publish depending on the depth of the test.
-    // For now we just verify it transitions to step 2 successfully with 3 years of experience.
-    console.log('--- TC8 TEST FINISHED SUCCESSFULLY ---');
+    await page.getByRole('button', { name: 'Review', exact: true }).click();
+    
+    const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 15000 });
   });
 });

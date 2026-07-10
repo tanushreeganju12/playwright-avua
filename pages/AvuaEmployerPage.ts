@@ -156,60 +156,120 @@ export class AvuaEmployerPage {
     const jobRow = this.page.locator(`text="${jobTitle}"`).first();
     await expect(jobRow).toBeVisible({ timeout: 15000 });
   }
-  async fillStep2Details(currency: string = 'USD', freq: string = 'Hourly', amount: string = '5000'): Promise<void> {
-    // Wait for step 2 to be visible
+  async fillStep2Details(options: {
+    currency?: string,
+    frequency?: string,
+    amount?: string,
+    engagementModel?: 'IC' | 'EOR' | 'Undecided',
+    contractLength?: string,
+    startDate?: string,
+    scopeOfWork?: string,
+    language?: string,
+    technicalRatio?: string
+  } = {}): Promise<void> {
+    const finalOptions = Object.keys(options).length === 0 
+      ? { currency: 'USD', frequency: 'Hourly', amount: '5000', engagementModel: 'IC', contractLength: '6', startDate: '25' } 
+      : options;
+    const { currency, frequency, amount, engagementModel, contractLength, startDate, scopeOfWork, language, technicalRatio } = finalOptions;
+
     const paymentHeading = this.page.getByRole('heading', { name: /Payment Details/i }).first();
     await expect(paymentHeading).toBeVisible({ timeout: 10000 });
 
-    // Currency
-    const currencyInput = this.page.getByText('Currency').locator('..').locator('input').first();
-    if (await currencyInput.isVisible().catch(() => false)) {
-      const val = await currencyInput.inputValue();
-      if (!val.includes(currency)) {
-        await currencyInput.click();
-        await this.page.locator('div').filter({ hasText: new RegExp(`^${currency}$`) }).first().click();
-        await this.page.waitForTimeout(300);
+    if (frequency) {
+      const freqInputContainer = this.page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..').first();
+      await freqInputContainer.scrollIntoViewIfNeeded();
+      await freqInputContainer.click({ force: true });
+      await this.page.waitForTimeout(1000);
+      const freqOption = this.page.getByText(frequency, { exact: true }).last();
+      if (await freqOption.isVisible()) {
+          await freqOption.click({ force: true });
+          await this.page.waitForTimeout(300);
       }
     }
 
-    // Payment Frequency
-    const freqInputContainer = this.page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..').first();
-    await freqInputContainer.scrollIntoViewIfNeeded();
-    await freqInputContainer.click({ force: true });
-    await this.page.waitForTimeout(1000);
-    const freqOption = this.page.getByText(freq, { exact: true }).last();
-    await expect(freqOption).toBeVisible({ timeout: 5000 });
-    await freqOption.click({ force: true });
-    await this.page.waitForTimeout(300);
-
-    // Amount
-    const amountInput = this.page.getByPlaceholder(/Enter Amount/i).first();
-    if (await amountInput.isVisible()) {
-      await amountInput.fill(amount);
-    }
-    await this.page.waitForTimeout(500);
-
-    // Contractor engagement model (IC)
-    const icCard = this.page.getByText('Independent contractor (IC)').first();
-    await icCard.scrollIntoViewIfNeeded();
-    await icCard.click();
-
-    // Contract Length
-    const lengthInput = this.page.getByPlaceholder(/Enter Contract Length/i).first();
-    if (await lengthInput.isVisible()) {
-      await lengthInput.fill('6');
+    if (currency) {
+      const currencyInput = this.page.getByText('Currency').locator('..').locator('input').first();
+      if (await currencyInput.isVisible().catch(() => false)) {
+        const val = await currencyInput.inputValue();
+        if (!val.includes(currency)) {
+          await currencyInput.click();
+          await this.page.locator('div').filter({ hasText: new RegExp(`^${currency}$`) }).first().click();
+          await this.page.waitForTimeout(300);
+        }
+      }
     }
 
-    // Contract Start Date (e.g. 15 / 08 / 2026)
-    const dateBtn = this.page.getByRole('button', { name: /Contract Start Date/i }).first();
-    if (await dateBtn.isVisible()) {
-      await dateBtn.scrollIntoViewIfNeeded();
-      await dateBtn.click();
+    if (amount) {
+      const amountInput = this.page.getByPlaceholder(/Enter amount/i).first();
+      if (await amountInput.isVisible()) {
+        await amountInput.click();
+        await amountInput.fill(amount);
+        await amountInput.blur();
+      }
       await this.page.waitForTimeout(500);
-      // Just click any day, like 25
-      const day25 = this.page.getByText('25', { exact: true }).last();
-      await day25.click();
     }
-    await this.page.waitForTimeout(500);
+
+    if (scopeOfWork) {
+      const scopeEditor = this.page.locator('.ql-editor').first();
+      if (await scopeEditor.isVisible()) {
+        await scopeEditor.fill(scopeOfWork);
+      } else {
+        const fallbackScope = this.page.locator('textarea').first();
+        if (await fallbackScope.isVisible()) await fallbackScope.fill(scopeOfWork);
+      }
+    }
+
+    if (engagementModel) {
+      let optionText = '';
+      if (engagementModel === 'IC') optionText = 'Independent contractor (IC)';
+      else if (engagementModel === 'EOR') optionText = 'Employer of Record (EOR)';
+      else if (engagementModel === 'Undecided') optionText = 'Undecided';
+      
+      const modelCard = this.page.getByText(optionText).first();
+      if (await modelCard.isVisible()) {
+          await modelCard.scrollIntoViewIfNeeded();
+          await modelCard.click();
+      }
+    }
+
+    if (contractLength) {
+      const lengthInput = this.page.getByPlaceholder(/Enter Contract Length/i).first();
+      if (await lengthInput.isVisible()) {
+        await lengthInput.click({ force: true });
+        await lengthInput.fill(contractLength);
+        await lengthInput.blur();
+      }
+    }
+
+    if (startDate) {
+      const startDateContainer = this.page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
+      await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
+      if (await startDateContainer.isVisible()) {
+        await startDateContainer.click({ force: true });
+        const dayOption = this.page.getByText(startDate, { exact: true }).last();
+        if (await dayOption.isVisible()) {
+          await dayOption.click({ force: true });
+        } else {
+          await this.page.mouse.click(500, 500);
+        }
+      }
+    }
+
+    if (language) {
+      const langSelect = this.page.getByText('Select Language').first();
+      if (await langSelect.isVisible()) {
+        await langSelect.click({ force: true });
+        await this.page.getByText(language, { exact: true }).first().click({ force: true });
+      }
+    }
+
+    if (technicalRatio) {
+      const ratioInput = this.page.locator('input[type="number"]').last();
+      if (await ratioInput.isVisible()) {
+        await ratioInput.click();
+        await ratioInput.fill(technicalRatio);
+        await ratioInput.blur();
+      }
+    }
   }
 }
