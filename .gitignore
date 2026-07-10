@@ -7,3 +7,4 @@ screenshots/
 .playwright-mcp/
 test-gemini.js
 
+playwright/.auth

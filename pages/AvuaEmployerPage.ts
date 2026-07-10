@@ -33,13 +33,13 @@ export class AvuaEmployerPage {
     await this.page.getByRole('button', { name: 'Sign in' }).click();
 
     await expect(this.page).toHaveURL(/\/employer\/dashboard/i, { timeout: 30000 });
-    await this.postJobButton.waitFor({ state: 'visible', timeout: 30000 });
+    await expect(this.postJobButton).toBeVisible({ timeout: 30000 });
   }
 
   async navigateToJobPostPage(): Promise<void> {
-    await this.postJobButton.click();
+    await this.page.goto('/employer/contract-job-post', { waitUntil: 'domcontentloaded' });
     await expect(this.page).toHaveURL(/\/employer\/contract-job-post/i);
-    await this.jobTitleInput.waitFor({ state: 'visible', timeout: 10000 });
+    await expect(this.jobTitleInput).toBeVisible({ timeout: 10000 });
   }
 
   async fillStep1Details(jobTitle: string, empType: string = "Onsite", jobDescription: string = "We are seeking a skilled Playwright Test Engineer to build and maintain end-to-end tests.", addSkills: boolean = true, minExpYears: number = 4): Promise<void> {
@@ -49,12 +49,16 @@ export class AvuaEmployerPage {
     // Fill Job Title
     await this.jobTitleInput.fill(jobTitle);
     await this.page.keyboard.press('Escape');
-
-    // Wait 3 seconds for all async libraries (like Quill) to load and initialize
-    await this.page.waitForTimeout(3000);
+    
+    // Wait for the dropdown suggestion text to appear and click it if available
+    const suggestion = this.page.locator(`text="${jobTitle}"`).last();
+    if (await suggestion.isVisible({ timeout: 1500 }).catch(() => false)) {
+      await suggestion.click();
+    }
 
     // Job Description
     const descInput = this.page.locator('.ql-editor').first();
+    await expect(descInput).toBeVisible();
     await descInput.click({ force: true });
     await descInput.fill(jobDescription);
 
@@ -62,228 +66,150 @@ export class AvuaEmployerPage {
       // Select skills
       const addSkillBtn = this.page.locator('text=+ Add skill').first();
       await addSkillBtn.click();
-      await this.page.waitForTimeout(1000); // wait for input to appear
 
       const skillsInput = this.page.getByPlaceholder(/Enter skills/i).first();
+      await expect(skillsInput).toBeVisible();
       await skillsInput.click();
       await skillsInput.fill('Playwright');
       await this.page.keyboard.press('Enter');
+      
+      const skillDropdown = this.page.locator('text="Playwright"').last();
+      if (await skillDropdown.isVisible({ timeout: 1000 }).catch(() => false)) {
+         await skillDropdown.click();
+      }
     }
-    await this.page.waitForTimeout(500);
 
     // Select Employment Type FIRST (so its re-render doesn't reset experience)
     const empHeading = this.page.getByRole('heading', { name: new RegExp(empType, 'i') }).first();
+    await expect(empHeading).toBeVisible();
     await empHeading.evaluate((el) => {
       if (el.parentElement) {
         el.parentElement.click();
       } else {
-        el.click();
+        (el as HTMLElement).click();
       }
     });
-    await this.page.waitForTimeout(500);
 
     // Experience Minimum: fill AFTER employment type click to avoid re-render reset
-    // Simple reliable locator: first number input on the page is Minimum Experience
     const minExp = this.page.locator('input[type="number"]').first();
-    await minExp.click({ clickCount: 3 }); // triple click selects all existing text
-    await minExp.type(minExpYears.toString()); // type the number
+    await expect(minExp).toBeVisible();
+    await minExp.click({ clickCount: 3 }); 
+    await minExp.type(minExpYears.toString());
     await minExp.blur();
-    await this.page.waitForTimeout(500);
-
 
     // Location
     const countryInput = this.page.getByPlaceholder(/e\.g\.\s+United\s+States/i).first();
     await countryInput.scrollIntoViewIfNeeded();
     await countryInput.click();
-    await countryInput.fill('United States');
-    await this.page.waitForTimeout(2000);
-    await this.page.evaluate(() => {
-      const els = Array.from(document.querySelectorAll('div, li, span, p')).filter(e => e.textContent === 'United States');
-      // The last element with exact text 'United States' is likely the dropdown option
-      if (els.length > 0) els[els.length - 1].click();
-    });
-    await this.page.waitForTimeout(500);
+    await countryInput.fill('');
+    await countryInput.pressSequentially('United States', { delay: 50 });
+    
+    // Wait for the dropdown suggestion text to appear and click it
+    const countryOption = this.page.locator('div.cursor-pointer').filter({ hasText: /^United States$/ }).last();
+    await expect(countryOption).toBeVisible({ timeout: 5000 });
+    await countryOption.click();
+    
+    // Wait for cities to load from backend based on Country selection
+    await this.page.waitForTimeout(3000);
 
     const cityInput = this.page.getByPlaceholder(/e\.g\.\s+California/i).first();
     await cityInput.scrollIntoViewIfNeeded();
     await cityInput.click();
-    await cityInput.fill('New York');
-    await this.page.waitForTimeout(2000);
-    await this.page.evaluate(() => {
-      const els = Array.from(document.querySelectorAll('div, li, span, p')).filter(e => e.textContent && e.textContent.includes('New York, United States'));
-      if (els.length > 0) els[els.length - 1].click();
-    });
-    await this.page.waitForTimeout(500);
+    await cityInput.fill('');
+    await cityInput.pressSequentially('New York', { delay: 50 });
+    
+    const cityOption = this.page.locator('div.cursor-pointer').filter({ hasText: /New York/ }).first();
+    await expect(cityOption).toBeVisible({ timeout: 5000 });
+    await cityOption.click();
 
-    // Global applications
-    // (This option seems to have been removed from the UI)
-  }
-
-  async injectReactStateOverrides(amount = 100, contractLength = "6", jobTitle?: string, empType?: string, paymentFrequency: string = "hourly", contractType: string = "pay_as_you_go_time_based", minExp: number = 4) {
-    const today = new Date().toISOString().split('T')[0];
-    const targetTitle = jobTitle || 'Playwright Test Engineer';
-    const targetEmpType = empType || null; // null means we shouldn't overwrite
-
-    await this.page.evaluate(({ today, amount, contractLength, targetTitle, targetEmpType, paymentFrequency, contractType, minExp }) => {
-      // Find the __reactFiber node
-      const candidates = Array.from(document.querySelectorAll('input, textarea, button, div, p, span, main'));
-      let formStateHook: any = null;
-      for (const el of candidates) {
-        const key = Object.keys(el).find(k => k.startsWith('__reactFiber$'));
-        if (!key) continue;
-        let f = (el as any)[key];
-        while (f) {
-          let hook = f.memoizedState;
-          while (hook) {
-            const val = hook.memoizedState;
-            // The form state has job_title and job_space
-            if (val && typeof val === 'object' && 'job_title' in val && 'job_space' in val) {
-              formStateHook = hook;
-              break;
-            }
-            hook = hook.next;
-          }
-          if (formStateHook) break;
-          f = f.return;
-        }
-        if (formStateHook) break;
-      }
-      if (!formStateHook) throw new Error("Form state hook (containing job_title and job_space) not found in React Fiber trees of any DOM candidates");
-
-      const currentVal = formStateHook.memoizedState;
-
-      const updated = {
-        ...currentVal,
-        work_mode: targetEmpType ? [targetEmpType === 'Onsite' ? 'On-site' : targetEmpType] : (currentVal.work_mode || ['On-site']),
-        job_space: {
-          id: "506760d0-36fa-4251-bc3d-f6eaaefc45f3",
-          title: "untitled"
-        },
-        country: {
-          id: "d797732d-1ca2-4e60-8ea3-a4f835bd10c1",
-          name: "United States",
-          code: "US"
-        },
-        job_title: {
-          id: "5762d24e-356e-4ac6-9584-8f1ab03aec93",
-          title: targetTitle || currentVal.job_title?.title || "Playwright Test Engineer"
-        },
-        job_location: {
-          id: "62814642-60a0-4bc8-85fe-41ea4aa4f8bd",
-          city: "New York City",
-          state: "New York",
-          country: "United States",
-          code: "US"
-        },
-        description: "We are seeking a skilled Playwright Test Engineer.",
-        skills: (currentVal.skills && currentVal.skills.length > 0) ? currentVal.skills : [
-          { id: 1779278918902, name: "Test Automation" },
-          { id: 1779278918903, name: "JavaScript" }
-        ],
-        experience: {
-          min: minExp,
-          max: currentVal.experience?.max || 10
-        },
-        salary_type: paymentFrequency,
-        payment_frequency: paymentFrequency,
-        contract_job_payment_details: {
-          contract_type: contractType,
-          currency: "USD",
-          contract_length: Number(contractLength) || 6,
-          start_date: `${today}T00:00:00.000Z`,
-          scope_of_work: "We are seeking a skilled Playwright Test Engineer.",
-          payment_scale: paymentFrequency,
-          payment_frequency: paymentFrequency,
-          minimum_amount: amount,
-          maximum_amount: amount,
-          milestones: [],
-          contractor_payment_amount: amount,
-          company_budget_for_candidate: amount
-        },
-        expected_salary: {
-          min: amount,
-          max: amount
-        },
-        exact_amount: amount,
-        contract_length: contractLength,
-        contract_start_date: today,
-        terms_and_conditions: true
-      };
-
-      formStateHook.queue.dispatch(updated);
-    }, { today, contractLength, amount, targetTitle, targetEmpType, paymentFrequency, contractType, minExp });
+    const langSelect = this.page.getByText('Select Language').first();
+    if (await langSelect.isVisible()) {
+      await langSelect.click({ force: true });
+      await this.page.getByText('English', { exact: true }).first().click({ force: true });
+    }
   }
 
   async proceedToStep2(): Promise<void> {
-    await this.injectReactStateOverrides(100, "6", this.currentJobTitle, this.currentEmpType);
-    await this.page.waitForTimeout(500);
-    await this.continueButton.click();
-    // Wait for the contractor model button to be visible on Step 2
-    await this.page.locator('.grid.grid-cols-3 > div').first().waitFor({ state: 'visible', timeout: 10000 });
-  }
-
-  async fillStep2Details(): Promise<void> {
-    // Select Contractor Model (IC)
-    const icBtn = this.page.getByText('Independent contractor (IC)').first();
-    await icBtn.click();
-    await this.page.waitForTimeout(500);
-
-    // Set Step 2 React state values
-    await this.injectReactStateOverrides();
-    await this.page.waitForTimeout(500);
-
-    // Click the payment frequency input to open dropdown
-    const freqInput = this.page.getByPlaceholder('Select payment frequency');
-    await freqInput.click();
-    await this.page.waitForTimeout(300);
-
-    // Click "Hourly" option
-    await this.page.locator('div').filter({ hasText: /^Hourly$/ }).first().click();
-    await this.page.waitForTimeout(500);
+    await this.page.getByRole('button', { name: 'Continue', exact: true }).first().click();
+    const paymentDetailsHeading = this.page.getByRole('heading', { name: /Payment Details/i }).first();
+    await paymentDetailsHeading.waitFor({ state: 'visible', timeout: 20000 });
   }
 
   async proceedToStep3(): Promise<void> {
+    await expect(this.reviewButton).toBeVisible();
     await this.reviewButton.click();
-    await this.page.waitForTimeout(1000);
+    await expect(this.publishButton).toBeVisible({ timeout: 15000 });
   }
 
   async publishJob(): Promise<void> {
-    // Before publishing, run state overrides again to ensure job_location ID is preserved on Step 3 rendering
-    await this.injectReactStateOverrides();
-    await this.page.waitForTimeout(200);
-
-    // Call Publish onClick handler directly or click the button
-    const pubClicked = await this.page.evaluate(() => {
-      const pubEl = [...document.querySelectorAll('button')].find(e => e.innerText && e.innerText.includes("Publish"));
-      if (!pubEl) return false;
-      const key = Object.keys(pubEl).find(k => k.startsWith('__reactFiber$'));
-      if (!key) return false;
-      let f = (pubEl as any)[key];
-      while (f) {
-        if (f.memoizedProps && typeof f.memoizedProps.onClick === 'function') {
-          f.memoizedProps.onClick();
-          return true;
-        }
-        f = f.return;
-      }
-      return false;
-    });
-
-    if (!pubClicked) {
-      await this.publishButton.click();
-    }
+    await this.publishButton.click();
   }
 
   async verifyJobVisibleOnDashboard(jobTitle: string): Promise<void> {
     await this.page.waitForURL(/\/employer\/dashboard/i, { timeout: 30000, waitUntil: 'domcontentloaded' });
     // Click on the Jobs tab in the header
     const jobsTab = this.page.locator('a, button, div').filter({ hasText: /^Jobs$/ }).first();
-    await jobsTab.waitFor({ state: 'visible', timeout: 15000 });
+    await expect(jobsTab).toBeVisible({ timeout: 15000 });
     await jobsTab.click();
-    await this.page.waitForTimeout(2000);
     
     // Verify the job is visible in the list
-    const jobRow = this.page.locator(`text=${jobTitle}`).first();
+    const jobRow = this.page.locator(`text="${jobTitle}"`).first();
     await expect(jobRow).toBeVisible({ timeout: 15000 });
+  }
+  async fillStep2Details(currency: string = 'USD', freq: string = 'Hourly', amount: string = '5000'): Promise<void> {
+    // Wait for step 2 to be visible
+    const paymentHeading = this.page.getByRole('heading', { name: /Payment Details/i }).first();
+    await expect(paymentHeading).toBeVisible({ timeout: 10000 });
+
+    // Currency
+    const currencyInput = this.page.getByText('Currency').locator('..').locator('input').first();
+    if (await currencyInput.isVisible().catch(() => false)) {
+      const val = await currencyInput.inputValue();
+      if (!val.includes(currency)) {
+        await currencyInput.click();
+        await this.page.locator('div').filter({ hasText: new RegExp(`^${currency}$`) }).first().click();
+        await this.page.waitForTimeout(300);
+      }
+    }
+
+    // Payment Frequency
+    const freqInputContainer = this.page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..').first();
+    await freqInputContainer.scrollIntoViewIfNeeded();
+    await freqInputContainer.click({ force: true });
+    await this.page.waitForTimeout(1000);
+    const freqOption = this.page.getByText(freq, { exact: true }).last();
+    await expect(freqOption).toBeVisible({ timeout: 5000 });
+    await freqOption.click({ force: true });
+    await this.page.waitForTimeout(300);
+
+    // Amount
+    const amountInput = this.page.getByPlaceholder(/Enter Amount/i).first();
+    if (await amountInput.isVisible()) {
+      await amountInput.fill(amount);
+    }
+    await this.page.waitForTimeout(500);
+
+    // Contractor engagement model (IC)
+    const icCard = this.page.getByText('Independent contractor (IC)').first();
+    await icCard.scrollIntoViewIfNeeded();
+    await icCard.click();
+
+    // Contract Length
+    const lengthInput = this.page.getByPlaceholder(/Enter Contract Length/i).first();
+    if (await lengthInput.isVisible()) {
+      await lengthInput.fill('6');
+    }
+
+    // Contract Start Date (e.g. 15 / 08 / 2026)
+    const dateBtn = this.page.getByRole('button', { name: /Contract Start Date/i }).first();
+    if (await dateBtn.isVisible()) {
+      await dateBtn.scrollIntoViewIfNeeded();
+      await dateBtn.click();
+      await this.page.waitForTimeout(500);
+      // Just click any day, like 25
+      const day25 = this.page.getByText('25', { exact: true }).last();
+      await day25.click();
+    }
+    await this.page.waitForTimeout(500);
   }
 }
