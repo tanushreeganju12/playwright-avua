@@ -168,7 +168,7 @@ export class AvuaEmployerPage {
     technicalRatio?: string
   } = {}): Promise<void> {
     const finalOptions = Object.keys(options).length === 0 
-      ? { currency: 'USD', frequency: 'Hourly', amount: '5000', engagementModel: 'IC', contractLength: '6', startDate: '25' } 
+      ? { currency: 'USD', frequency: 'Hourly', amount: '5000', engagementModel: 'IC', contractLength: '6', startDate: '25' } as typeof options
       : options;
     const { currency, frequency, amount, engagementModel, contractLength, startDate, scopeOfWork, language, technicalRatio } = finalOptions;
 
