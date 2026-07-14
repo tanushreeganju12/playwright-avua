@@ -5,13 +5,15 @@ class GithubSummaryReporter implements Reporter {
   private suite!: Suite;
 
   onBegin(config: any, suite: Suite) {
+    console.log('[GithubSummaryReporter] Initialized.');
     this.suite = suite;
   }
 
   onEnd(result: FullResult) {
+    console.log('[GithubSummaryReporter] Generating summary...');
     const summaryFile = process.env.GITHUB_STEP_SUMMARY;
     if (!summaryFile) {
-      return;
+      console.log('[GithubSummaryReporter] WARNING: GITHUB_STEP_SUMMARY is not set in this environment.');
     }
 
     let passed = 0;
@@ -53,10 +55,17 @@ class GithubSummaryReporter implements Reporter {
 **Duration:** ${(result.duration / 1000).toFixed(1)}s
 `;
 
-    try {
-      fs.appendFileSync(summaryFile, summary + '\n');
-    } catch (e) {
-      console.error('Failed to write to GITHUB_STEP_SUMMARY', e);
+    if (summaryFile) {
+      try {
+        fs.appendFileSync(summaryFile, summary + '\n');
+        console.log(`[GithubSummaryReporter] Successfully appended to ${summaryFile}`);
+      } catch (e) {
+        console.error('[GithubSummaryReporter] Failed to write to GITHUB_STEP_SUMMARY', e);
+      }
+    } else {
+      console.log('::group::Playwright Test Summary');
+      console.log(summary);
+      console.log('::endgroup::');
     }
   }
 }
