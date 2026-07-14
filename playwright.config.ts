@@ -6,7 +6,13 @@ export default defineConfig({
   workers: 1,
   timeout: 60000,
   retries: 1,
-  reporter: [
+  reporter: process.env.CI ? [
+    ['github'],
+    ['./utils/githubSummaryReporter.ts'],
+    ['html'],
+    ['./utils/jiraReporter.ts']
+  ] : [
+    ['list'],
     ['html'],
     ['./utils/jiraReporter.ts']
   ],
