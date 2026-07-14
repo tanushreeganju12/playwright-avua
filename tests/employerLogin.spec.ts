@@ -11,7 +11,7 @@ test('TC1 - Valid login redirects to dashboard', async ({ page }) => {
 });
 
 test('TC3 - Sign-in is not clickable when email and password are empty', async ({ page }) => {
-  await page.goto('/employer-login');
+  await page.goto('/employer-login', { waitUntil: 'domcontentloaded' });
   
   // Switch to Password tab
   const passwordTab = page.getByRole('button', { name: 'Password' }).first();
@@ -23,7 +23,7 @@ test('TC3 - Sign-in is not clickable when email and password are empty', async (
 });
 
 test('TC4 - Success message is shown and OTP is requested when valid email is submitted', async ({ page }) => {
-  await page.goto('/employer-login');
+  await page.goto('/employer-login', { waitUntil: 'domcontentloaded' });
   
   // Click One-time code tab
   const otpTab = page.getByRole('button', { name: 'One-time code' }).first();
@@ -43,7 +43,7 @@ test('TC4 - Success message is shown and OTP is requested when valid email is su
 });
 
 test('TC5 - Displays user doesnt exist when unregistered email is entered', async ({ page }) => {
-  await page.goto('/employer-login');
+  await page.goto('/employer-login', { waitUntil: 'domcontentloaded' });
   
   // Click One-time code tab
   const otpTab = page.getByRole('button', { name: 'One-time code' }).first();
@@ -62,7 +62,7 @@ test('TC5 - Displays user doesnt exist when unregistered email is entered', asyn
 });
 
 test('TC6 - Send sign-in code button is disabled when email field is empty', async ({ page }) => {
-  await page.goto('/employer-login');
+  await page.goto('/employer-login', { waitUntil: 'domcontentloaded' });
   
   // Click One-time code tab
   const otpTab = page.getByRole('button', { name: 'One-time code' }).first();
@@ -78,7 +78,7 @@ test('TC6 - Send sign-in code button is disabled when email field is empty', asy
 });
 
 test('TC7 - Employer is redirected to forgot password page when clicking Forgot password link', async ({ page }) => {
-  await page.goto('/employer-login');
+  await page.goto('/employer-login', { waitUntil: 'domcontentloaded' });
   
   // Click Password tab
   const passwordTab = page.getByRole('button', { name: 'Password' }).first();

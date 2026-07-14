@@ -234,6 +234,7 @@ export class AvuaEmployerPage {
 
     if (contractLength) {
       const lengthInput = this.page.getByPlaceholder(/Enter Contract Length/i).first();
+      await lengthInput.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
       if (await lengthInput.isVisible()) {
         await lengthInput.click({ force: true });
         await lengthInput.fill(contractLength);
@@ -247,10 +248,10 @@ export class AvuaEmployerPage {
       if (await startDateContainer.isVisible()) {
         await startDateContainer.click({ force: true });
         const dayOption = this.page.getByText(startDate, { exact: true }).last();
+        await dayOption.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
         if (await dayOption.isVisible()) {
           await dayOption.click({ force: true });
-        } else {
-          await this.page.mouse.click(500, 500);
+          await this.page.waitForTimeout(300);
         }
       }
     }
