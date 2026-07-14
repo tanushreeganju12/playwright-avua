@@ -22,7 +22,7 @@ test.describe('C1 - Required Field Validation', () => {
     await page.getByRole('textbox', { name: 'Enter your last name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Enter your email' }).fill('test@example.com');
     await page.getByRole('textbox', { name: 'Mobile Number' }).fill('9876543210');
-    await page.getByRole('textbox', { name: 'Select your designation' }).fill('QA Engineer');
+    await page.getByRole('textbox', { name: 'Enter your designation' }).fill('QA Engineer');
     await page.getByRole('textbox', { name: 'Message*' }).fill('This is a test message for validation.');
 
     // Step 4: Click 'Talk to avua'
@@ -68,7 +68,7 @@ test.describe('C1 - Required Field Validation', () => {
     await page.getByRole('textbox', { name: 'Enter your first name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Enter your last name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Mobile Number' }).fill('9876543210');
-    await page.getByRole('textbox', { name: 'Select your designation' }).fill('QA Engineer');
+    await page.getByRole('textbox', { name: 'Enter your designation' }).fill('QA Engineer');
     await page.getByRole('textbox', { name: 'Message*' }).fill('This is a test message for validation.');
 
     // Step 4: Click 'Talk to avua'
@@ -112,7 +112,7 @@ test.describe('C1 - Required Field Validation', () => {
     await page.getByRole('textbox', { name: 'Enter your first name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Enter your last name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Enter your email' }).fill('test@example.com');
-    await page.getByRole('textbox', { name: 'Select your designation' }).fill('QA Engineer');
+    await page.getByRole('textbox', { name: 'Enter your designation' }).fill('QA Engineer');
     await page.getByRole('textbox', { name: 'Message*' }).fill('This is a test message for validation.');
 
     // Step 4: Click 'Talk to avua'
@@ -169,7 +169,7 @@ test.describe('C1 - Required Field Validation', () => {
     await page.waitForTimeout(400);
 
     // Screenshot the parent wrapper that contains Designation label + field + error message
-    const designationWrapper = page.getByRole('textbox', { name: 'Select your designation' }).locator('xpath=../..');
+    const designationWrapper = page.getByRole('textbox', { name: 'Enter your designation' }).locator('xpath=../..');
     const clippedScreenshot = await designationWrapper.screenshot();
     await test.info().attach('Designation Required Error', { body: clippedScreenshot, contentType: 'image/png' });
 
@@ -204,7 +204,7 @@ test.describe('C1 - Required Field Validation', () => {
     await page.getByRole('textbox', { name: 'Enter your last name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Enter your email' }).fill('test@example.com');
     await page.getByRole('textbox', { name: 'Mobile Number' }).fill('9876543210');
-    await page.getByRole('textbox', { name: 'Select your designation' }).fill('QA Engineer');
+    await page.getByRole('textbox', { name: 'Enter your designation' }).fill('QA Engineer');
 
     // Step 4: Click 'Talk to avua'
     await page.getByRole('button', { name: 'Talk to avua' }).click();
@@ -324,7 +324,7 @@ test.describe('C1 - Required Field Validation', () => {
     await page.getByRole('textbox', { name: 'Enter your first name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Enter your last name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Mobile Number' }).fill('9876543210');
-    await page.getByRole('textbox', { name: 'Select your designation' }).fill('QA Engineer');
+    await page.getByRole('textbox', { name: 'Enter your designation' }).fill('QA Engineer');
     await page.getByRole('textbox', { name: 'Message*' }).fill('This is a test message for validation.');
 
     // Step 4: Click 'Talk to avua'
@@ -384,7 +384,7 @@ test.describe('C1 - Required Field Validation', () => {
     await page.getByRole('textbox', { name: 'Enter your first name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Enter your last name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Mobile Number' }).fill('9876543210');
-    await page.getByRole('textbox', { name: 'Select your designation' }).fill('QA Engineer');
+    await page.getByRole('textbox', { name: 'Enter your designation' }).fill('QA Engineer');
     await page.getByRole('textbox', { name: 'Message*' }).fill('This is a test message for validation.');
 
     // Step 4: Click 'Talk to avua'
@@ -444,7 +444,7 @@ test.describe('C1 - Required Field Validation', () => {
     await page.getByRole('textbox', { name: 'Enter your first name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Enter your last name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Mobile Number' }).fill('9876543210');
-    await page.getByRole('textbox', { name: 'Select your designation' }).fill('QA Engineer');
+    await page.getByRole('textbox', { name: 'Enter your designation' }).fill('QA Engineer');
     await page.getByRole('textbox', { name: 'Message*' }).fill('This is a test message for validation.');
 
     // Screenshot BEFORE submission — showing form filled with valid data
@@ -523,7 +523,7 @@ test.describe('C1 - Required Field Validation', () => {
     await page.getByRole('textbox', { name: 'Enter your first name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Enter your last name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Enter your email' }).fill('user@company.com');
-    await page.getByRole('textbox', { name: 'Select your designation' }).fill('QA Engineer');
+    await page.getByRole('textbox', { name: 'Enter your designation' }).fill('QA Engineer');
     await page.getByRole('textbox', { name: 'Message*' }).fill('This is a test message for validation.');
 
     // Screenshot BEFORE submission — showing form filled with valid data
@@ -600,7 +600,7 @@ test.describe('C1 - Required Field Validation', () => {
     await page.getByRole('textbox', { name: 'Enter your last name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Enter your email' }).fill('user@company.com');
     await page.getByRole('textbox', { name: 'Mobile Number' }).fill('9876543210');
-    await page.getByRole('textbox', { name: 'Select your designation' }).fill('QA Engineer');
+    await page.getByRole('textbox', { name: 'Enter your designation' }).fill('QA Engineer');
 
     // Screenshot BEFORE submission — showing form filled with valid data
     await page.evaluate(() => window.scrollTo(0, 0));
@@ -677,7 +677,7 @@ test.describe('C1 - Required Field Validation', () => {
     await page.getByRole('textbox', { name: 'Enter your first name' }).fill('TestUser');
     await page.getByRole('textbox', { name: 'Enter your email' }).fill('user@company.com');
     await page.getByRole('textbox', { name: 'Mobile Number' }).fill('9876543210');
-    await page.getByRole('textbox', { name: 'Select your designation' }).fill('QA Engineer');
+    await page.getByRole('textbox', { name: 'Enter your designation' }).fill('QA Engineer');
     await page.getByRole('textbox', { name: 'Message*' }).fill('This is a test message for validation.');
 
     // Screenshot BEFORE submission — showing Last Name is blank, all required fields filled

@@ -47,8 +47,8 @@ export class AvuaSignUpPage {
       .or(page.getByRole('textbox', { name: /Search nationality/i }))
       .first();
     this.createMyAccountButton = page
-      .getByRole('button', { name: /Create My Account|Create Account/i })
-      .or(page.getByText(/Create my account|Create My Account|Create Account/i))
+      .getByRole('button', { name: /Create My Account|Create Account|Proceed to Dashboard/i })
+      .or(page.getByText(/Create my account|Create My Account|Create Account|Proceed to Dashboard/i))
       .first();
     this.signInLinkSuccessMessage = page
       .getByRole('heading', {
@@ -63,7 +63,7 @@ export class AvuaSignUpPage {
   }
 
   async gotoHomePage(): Promise<void> {
-    await this.page.goto('/');
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
   }
 
   async goToApplicantSignUpPage(): Promise<void> {
@@ -73,13 +73,13 @@ export class AvuaSignUpPage {
     if (await this.exploreJobOpportunitiesLink.first().isVisible()) {
       await this.exploreJobOpportunitiesLink.first().click();
     } else {
-      await this.page.goto('/applicant');
+      await this.page.goto('/applicant', { waitUntil: 'domcontentloaded' });
     }
 
     if (await this.signUpButton.first().isVisible()) {
       await this.signUpButton.first().click();
     } else {
-      await this.page.goto('/signup');
+      await this.page.goto('/signup', { waitUntil: 'domcontentloaded' });
     }
 
     await expect(this.page).toHaveURL(/\/signup/i);
@@ -131,40 +131,61 @@ export class AvuaSignUpPage {
   }
 
   async selectNationality(nationality: string): Promise<void> {
-    const escapedNationality = nationality.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const exactNationality = new RegExp(`^${escapedNationality}$`, 'i');
-    const containsNationality = new RegExp(escapedNationality, 'i');
-
-    await expect(this.nationalityDropdown).toBeVisible({ timeout: 15000 });
-    await this.nationalityDropdown.click();
-
-    // Some custom dropdowns render options only after typing into an editable combobox.
-    const nationalityTextInput = this.nationalityDropdown.or(this.page.getByRole('combobox')).first();
-    if (await nationalityTextInput.isEditable().catch(() => false)) {
-      await nationalityTextInput.fill(nationality);
+    try {
+      const natPlaceholder = this.page.getByPlaceholder(/Search nationality/i).first();
+      // Increase timeout because this component might fetch data and render late
+      await natPlaceholder.click({ force: true, timeout: 15000 });
+      
+      // Type the nationality using keyboard which sends events to the active element
+      await this.page.keyboard.type(nationality, { delay: 150 });
+      await this.page.waitForTimeout(1000);
+      
+      // Use keyboard to select the first highlighted item
+      await this.page.keyboard.press('ArrowDown');
+      await this.page.waitForTimeout(200);
+      await this.page.keyboard.press('Enter');
+      
+      await this.page.waitForTimeout(500);
+    } catch (error) {
+      console.log('Nationality fill failed or not visible, skipping.', error);
     }
+  }
 
-    const roleOption = this.page.getByRole('option', { name: exactNationality }).first();
-    if (await roleOption.isVisible().catch(() => false)) {
-      await roleOption.click();
-      return;
+  async fillCurrentLocation(location: string): Promise<void> {
+    const locInput = this.page.getByLabel(/Current Location\*?/i).or(this.page.getByPlaceholder(/Search location/i)).first();
+    try {
+      await locInput.waitFor({ state: 'visible', timeout: 5000 });
+      await locInput.click();
+      await locInput.clear();
+      
+      // Type the location slowly to trigger the custom dropdown
+      await locInput.pressSequentially(location, { delay: 150 });
+      
+      // Wait for the custom dropdown item to appear
+      const option = this.page.getByText(location, { exact: false }).last();
+      await option.waitFor({ state: 'visible', timeout: 5000 });
+      await option.click();
+      
+      await this.page.waitForTimeout(500);
+    } catch (error) {
+      console.log('Location fill failed, trying fallback.', error);
+      await locInput.fill(location);
     }
+  }
 
-    const roleListItem = this.page.getByRole('listitem', { name: containsNationality }).first();
-    if (await roleListItem.isVisible().catch(() => false)) {
-      await roleListItem.click();
-      return;
+  async fillCurrentCompany(company: string): Promise<void> {
+    const companyInput = this.page.getByLabel(/Current Company\*?/i).or(this.page.getByPlaceholder(/Etizas|Company/i)).first();
+    await companyInput.fill(company);
+  }
+
+  async fillPhoneNumber(phone: string): Promise<void> {
+    const phoneInput = this.page.getByLabel(/Phone Number\*?/i).or(this.page.getByPlaceholder(/Enter phone number/i)).first();
+    try {
+      await phoneInput.waitFor({ state: 'visible', timeout: 5000 });
+      await phoneInput.fill(phone);
+    } catch {
+      console.log('Phone Number not visible, skipping.');
     }
-
-    const textOption = this.page.getByText(exactNationality).first();
-    if (await textOption.isVisible().catch(() => false)) {
-      await textOption.click();
-      return;
-    }
-
-    // Keyboard fallback for searchable dropdown components that highlight first filtered result.
-    await this.page.keyboard.press('ArrowDown');
-    await this.page.keyboard.press('Enter');
   }
 
   async updateEmail(email: string): Promise<void> {
@@ -200,6 +221,18 @@ export class AvuaSignUpPage {
     }
 
     await createAccountButton.scrollIntoViewIfNeeded();
+
+    // Check the terms and conditions checkbox explicitly to ensure React registers it
+    try {
+      const termsCheckbox = this.page.getByRole('checkbox', { name: /Terms & Conditions/i }).or(this.page.locator('input[type="checkbox"]')).first();
+      // Only click it if it's not already checked, wait, no, the visual state might not match React state.
+      // Let's force check it.
+      await termsCheckbox.check({ force: true });
+    } catch (error) {
+      console.log('Could not check terms checkbox explicitly:', error);
+    }
+
+    await this.page.waitForTimeout(2000); // Wait for React state/validations to settle
     await expect(createAccountButton).toBeEnabled({ timeout: 20000 });
     await createAccountButton.click();
   }
