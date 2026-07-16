@@ -168,25 +168,47 @@ export class AvuaEmployerPage {
     technicalRatio?: string
   } = {}): Promise<void> {
     const finalOptions = Object.keys(options).length === 0 
-      ? { currency: 'USD', frequency: 'Hourly', amount: '5000', engagementModel: 'IC', contractLength: '6', startDate: '25' } as typeof options
+      ? { currency: 'USD', frequency: 'Hourly', amount: '5000', engagementModel: 'IC', contractLength: '6', startDate: 'auto' } as typeof options
       : options;
     const { currency, frequency, amount, engagementModel, contractLength, startDate, scopeOfWork, language, technicalRatio } = finalOptions;
 
+    console.log('--- fillStep2Details options:', finalOptions);
+
     const paymentHeading = this.page.getByRole('heading', { name: /Payment Details/i }).first();
     await expect(paymentHeading).toBeVisible({ timeout: 10000 });
+    // Wait for React to hydrate and attach event listeners
+    await this.page.waitForTimeout(2000);
 
-    if (frequency) {
-      const freqInputContainer = this.page.getByPlaceholder(/Select payment frequency/i).locator('..').locator('..').first();
-      await freqInputContainer.scrollIntoViewIfNeeded();
-      await freqInputContainer.click({ force: true });
-      await this.page.waitForTimeout(1000);
-      const freqOption = this.page.getByText(frequency, { exact: true }).last();
-      if (await freqOption.isVisible()) {
-          await freqOption.click({ force: true });
-          await this.page.waitForTimeout(300);
+    // ── Step A: Engagement model first — its re-render resets payment fields, so we fill payment AFTER ──
+    if (engagementModel) {
+      let optionText = '';
+      if (engagementModel === 'IC') optionText = 'Independent contractor (IC)';
+      else if (engagementModel === 'EOR') optionText = 'Employer of Record (EOR)';
+      else if (engagementModel === 'Undecided') optionText = 'Undecided';
+      
+      const modelCard = this.page.getByText(optionText).first();
+      if (await modelCard.isVisible()) {
+          await modelCard.scrollIntoViewIfNeeded();
+          await modelCard.click();
+          // The first test run (TC1a) can take longer to complete the engagement model
+          // API validation/state update, causing a delayed reset of the scope fields.
+          // Wait longer here so the reset happens BEFORE we fill the scope fields.
+          await this.page.waitForTimeout(3000); 
       }
     }
 
+    // ── Step B: Scope of Work (doesn't reset payment fields) ──
+    if (scopeOfWork) {
+      const scopeEditor = this.page.locator('.ql-editor').first();
+      if (await scopeEditor.isVisible()) {
+        await scopeEditor.fill(scopeOfWork);
+      } else {
+        const fallbackScope = this.page.locator('textarea').first();
+        if (await fallbackScope.isVisible()) await fallbackScope.fill(scopeOfWork);
+      }
+    }
+
+    // ── Step C: Currency (read-only, skip if already correct) ──
     if (currency) {
       const currencyInput = this.page.getByText('Currency').locator('..').locator('input').first();
       if (await currencyInput.isVisible().catch(() => false)) {
@@ -199,39 +221,65 @@ export class AvuaEmployerPage {
       }
     }
 
+    // ── Step D: Payment frequency — after engagement model so IC re-render can't wipe it ──
+    //           Filled before contractLength/startDate because it may trigger a scope-section re-render
+    if (frequency) {
+      await expect(async () => {
+        const freqLabel = this.page.getByText('Payment frequency').first();
+        await freqLabel.scrollIntoViewIfNeeded();
+        const freqContainer = freqLabel.locator('..');
+        await freqContainer.click({ force: true });
+        await this.page.waitForTimeout(800);
+
+        // Click the matching option
+        let freqOption = this.page.getByText(frequency, { exact: true }).last();
+        if (!await freqOption.isVisible().catch(() => false)) {
+          freqOption = this.page.locator(`[id*="react-select"], [class*="option"], li`).filter({ hasText: frequency }).first();
+        }
+        await freqOption.waitFor({ state: 'visible', timeout: 5000 });
+        await freqOption.click();
+        await this.page.waitForTimeout(500);
+
+        // Verify the dropdown now reflects the selected value
+        const freqInput = this.page.locator('input[placeholder*="payment frequency"]').first();
+        await expect(freqInput).toHaveValue(frequency, { timeout: 3000 });
+      }).toPass({ timeout: 20000 });
+    }
+
+    // ── Step E: Amount — after frequency so both payment fields settle together ──
     if (amount) {
-      const amountInput = this.page.getByPlaceholder(/Enter amount/i).first();
+      const amountInput = this.page.getByPlaceholder('Enter Amount').first();
       if (await amountInput.isVisible()) {
         await amountInput.click();
-        await amountInput.fill(amount);
+        await amountInput.fill('');
+        await amountInput.pressSequentially(amount);
         await amountInput.blur();
       }
-      await this.page.waitForTimeout(500);
+      // Extra wait: let any payment-section re-render triggered by amount fully settle
+      await this.page.waitForTimeout(1000);
     }
 
-    if (scopeOfWork) {
-      const scopeEditor = this.page.locator('.ql-editor').first();
-      if (await scopeEditor.isVisible()) {
-        await scopeEditor.fill(scopeOfWork);
-      } else {
-        const fallbackScope = this.page.locator('textarea').first();
-        if (await fallbackScope.isVisible()) await fallbackScope.fill(scopeOfWork);
+    // ── Step F: Language ──
+    if (language) {
+      const langSelect = this.page.getByText('Select Language').first();
+      if (await langSelect.isVisible()) {
+        await langSelect.click();
+        await this.page.getByText(language, { exact: true }).first().click();
       }
     }
 
-    if (engagementModel) {
-      let optionText = '';
-      if (engagementModel === 'IC') optionText = 'Independent contractor (IC)';
-      else if (engagementModel === 'EOR') optionText = 'Employer of Record (EOR)';
-      else if (engagementModel === 'Undecided') optionText = 'Undecided';
-      
-      const modelCard = this.page.getByText(optionText).first();
-      if (await modelCard.isVisible()) {
-          await modelCard.scrollIntoViewIfNeeded();
-          await modelCard.click();
+    // ── Step G: Technical Ratio ──
+    if (technicalRatio) {
+      const ratioInput = this.page.locator('input[type="number"]').last();
+      if (await ratioInput.isVisible()) {
+        await ratioInput.click();
+        await ratioInput.fill('');
+        await ratioInput.pressSequentially(technicalRatio);
+        await ratioInput.blur();
       }
     }
 
+    // ── Step H: Contract Length — filled AFTER payment fields so payment re-renders cannot reset it ──
     if (contractLength) {
       const lengthInput = this.page.getByPlaceholder(/Enter Contract Length/i).first();
       await lengthInput.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
@@ -242,35 +290,25 @@ export class AvuaEmployerPage {
       }
     }
 
+    // ── Step I: Contract Start Date — filled LAST so nothing can reset it afterward ──
     if (startDate) {
-      const startDateContainer = this.page.locator('div[aria-label="Contract Start Date "]').filter({ hasText: 'DD' }).first();
-      await startDateContainer.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-      if (await startDateContainer.isVisible()) {
-        await startDateContainer.click({ force: true });
-        const dayOption = this.page.getByText(startDate, { exact: true }).last();
-        await dayOption.waitFor({ state: 'visible', timeout: 5000 }).catch(() => { });
-        if (await dayOption.isVisible()) {
-          await dayOption.click({ force: true });
-          await this.page.waitForTimeout(300);
-        }
-      }
+      const startDateLabel = this.page.getByText('Contract Start Date').first();
+      await startDateLabel.scrollIntoViewIfNeeded();
+
+      const startDateContainer = this.page.locator('div[aria-label*="Contract Start Date"]').first();
+      await startDateContainer.click({ force: true });
+      await this.page.waitForTimeout(1000);
+
+      // Click the first non-disabled calendar day button (future-proof — no hardcoded date)
+      const firstEnabledDay = this.page.locator(
+        'button[class*="rounded-lg"][class*="aspect-square"]:not([disabled]):not([class*="cursor-not-allowed"])'
+      ).first();
+      await firstEnabledDay.waitFor({ state: 'visible', timeout: 5000 });
+      await firstEnabledDay.click();
+      await this.page.waitForTimeout(500);
     }
 
-    if (language) {
-      const langSelect = this.page.getByText('Select Language').first();
-      if (await langSelect.isVisible()) {
-        await langSelect.click({ force: true });
-        await this.page.getByText(language, { exact: true }).first().click({ force: true });
-      }
-    }
-
-    if (technicalRatio) {
-      const ratioInput = this.page.locator('input[type="number"]').last();
-      if (await ratioInput.isVisible()) {
-        await ratioInput.click();
-        await ratioInput.fill(technicalRatio);
-        await ratioInput.blur();
-      }
-    }
+    // Wait for all React state updates to finish settling before Review is clicked
+    await this.page.waitForTimeout(1000);
   }
 }

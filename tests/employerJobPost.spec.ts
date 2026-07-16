@@ -291,7 +291,7 @@ test.describe('Employer Job Posting Flow', () => {
         scopeOfWork: 'This is the scope of work for this daily contract.',
         engagementModel: 'EOR',
         contractLength: '6',
-        startDate: '15',
+        startDate: 'auto',
         language: 'English',
         technicalRatio: '70'
     });
@@ -318,7 +318,7 @@ test.describe('Employer Job Posting Flow', () => {
         scopeOfWork: 'Hourly scope.',
         engagementModel: 'EOR',
         contractLength: '6',
-        startDate: '15',
+        startDate: 'auto',
         language: 'English'
     });
 
@@ -344,7 +344,7 @@ test.describe('Employer Job Posting Flow', () => {
         scopeOfWork: 'Monthly scope.',
         engagementModel: 'EOR',
         contractLength: '6',
-        startDate: '15',
+        startDate: 'auto',
         language: 'English'
     });
 
@@ -408,7 +408,7 @@ test.describe('Employer Job Posting Flow', () => {
         scopeOfWork: 'Scope with IC',
         engagementModel: 'IC',
         contractLength: '6',
-        startDate: '15',
+        startDate: 'auto',
         language: 'English'
     });
 
@@ -473,7 +473,7 @@ test.describe('Employer Job Posting Flow', () => {
         scopeOfWork: 'Scope of work test.',
         engagementModel: 'EOR',
         contractLength: '6',
-        startDate: '15',
+        startDate: 'auto',
         language: 'English'
     });
 
@@ -524,7 +524,7 @@ test.describe('Employer Job Posting Flow', () => {
         scopeOfWork: 'Scope of work test.',
         engagementModel: 'EOR',
         contractLength: '6',
-        startDate: '15',
+        startDate: 'auto',
         language: 'English'
     });
 
@@ -575,7 +575,7 @@ test.describe('Employer Job Posting Flow', () => {
         scopeOfWork: 'Scope of work test.',
         engagementModel: 'EOR',
         contractLength: '6',
-        startDate: '15',
+        startDate: 'auto',
         language: 'English'
     });
 
@@ -620,7 +620,7 @@ test.describe('Employer Job Posting Flow', () => {
         scopeOfWork: 'Scope of work test.',
         engagementModel: 'EOR',
         contractLength: '6',
-        startDate: '15',
+        startDate: 'auto',
         language: 'English'
     });
 
@@ -650,7 +650,7 @@ test.describe('Employer Job Posting Flow', () => {
         scopeOfWork: 'Scope of work test.',
         engagementModel: 'EOR',
         contractLength: '6',
-        startDate: '15',
+        startDate: 'auto',
         language: 'English'
     });
 
@@ -683,7 +683,7 @@ test.describe('Employer Job Posting Flow', () => {
         scopeOfWork: 'Scope with Undecided',
         engagementModel: 'Undecided',
         contractLength: '6',
-        startDate: '15',
+        startDate: 'auto',
         language: 'English'
     });
 
