@@ -17,6 +17,21 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
+    - name: Set PR status as pending
+      if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != '' && github.event.client_payload.sha != ''
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.FRONTEND_SYNC_TOKEN }}
+        script: |
+          await github.rest.repos.createCommitStatus({
+            owner: context.payload.client_payload.repository.split('/')[0],
+            repo: context.payload.client_payload.repository.split('/')[1],
+            sha: context.payload.client_payload.sha,
+            state: 'pending',
+            context: 'E2E Playwright Tests',
+            description: 'Running automation suite...',
+            target_url: `${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
+          });
     - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       with:
         ref: ${{ github.ref }}
@@ -41,3 +56,20 @@ jobs:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
+    - name: Set PR status on completion
+      if: always() && github.event_name == 'repository_dispatch' && github.event.client_payload.repository != '' && github.event.client_payload.sha != ''
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.FRONTEND_SYNC_TOKEN }}
+        script: |
+          const state = '${{ job.status }}' === 'success' ? 'success' : 'failure';
+          const description = state === 'success' ? 'All tests passed!' : 'Tests failed. Check details.';
+          await github.rest.repos.createCommitStatus({
+            owner: context.payload.client_payload.repository.split('/')[0],
+            repo: context.payload.client_payload.repository.split('/')[1],
+            sha: context.payload.client_payload.sha,
+            state: state,
+            context: 'E2E Playwright Tests',
+            description: description,
+            target_url: `${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
+          });
