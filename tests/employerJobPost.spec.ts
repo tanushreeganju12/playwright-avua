@@ -443,7 +443,7 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeVisible();
   });
 
-  test('TC14 Click Cancel from Step 2 redirects to Step 1', async ({ page }) => {
+  test('TC14 Click Back from Step 2 redirects to Step 1', async ({ page }) => {
     test.setTimeout(90000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
@@ -453,8 +453,8 @@ test.describe('Employer Job Posting Flow', () => {
     const paymentHeading = page.getByRole('heading', { name: /Payment Details/i }).first();
     await expect(paymentHeading).toBeVisible({ timeout: 10000 });
 
-    const cancelBtn = page.getByRole('button', { name: 'Cancel', exact: true }).first();
-    await cancelBtn.click();
+    const backBtn = page.getByRole('button', { name: 'Back', exact: true }).first();
+    await backBtn.click();
 
     const jobTitleInputStep1 = page.getByPlaceholder(/Enter Job Title/i).first();
     await expect(jobTitleInputStep1).toBeVisible({ timeout: 10000 });
