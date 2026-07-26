@@ -1,0 +1,86 @@
+{
+  "job_space": {
+    "id": "",
+    "title": ""
+  },
+  "job_title": {
+    "id": "e0a7dd1e-37b8-482f-b155-5ca317d902fe",
+    "title": "Flight Test Engineer",
+    "user_generated": false
+  },
+  "description": "<p>We are seeking a skilled Playwright Test Engineer to build and maintain end-to-end tests.</p>",
+  "skills": [
+    {
+      "id": 1782904581597,
+      "name": "Playwright"
+    }
+  ],
+  "evaluation_level": "Strict",
+  "experience": {
+    "min": "3",
+    "max": null
+  },
+  "work_mode": [
+    "Remote"
+  ],
+  "country": {
+    "id": "d797732d-1ca2-4e60-8ea3-a4f835bd10c1",
+    "name": "United States",
+    "code": "US"
+  },
+  "job_location": {
+    "id": "",
+    "city": "New York"
+  },
+  "allowGlobalApplicant": true,
+  "contract_type": "pay_as_you_go_time_based",
+  "currency": {
+    "code": "USD"
+  },
+  "salaryField": "exact_amount",
+  "exact_amount": 0,
+  "minimum_amount": 0,
+  "maximum_amount": 0,
+  "milestoneItems": [],
+  "completion_criteria": "",
+  "contract_length": "",
+  "contract_start_date": "",
+  "terms_and_conditions": true,
+  "technicalPercentage": 70,
+  "is_eor": true,
+  "employerProfileData": {
+    "first_name": "Masked",
+    "last_name": "251778",
+    "designation": "",
+    "phone": "",
+    "email": "pranjil+test@avua.com",
+    "profile_pic_path": null,
+    "company": "avua",
+    "logo": "https://d5yi3muwfwcw2.cloudfront.net/applicant/profile-pics/d4cca24a-d907-4862-a2c7-2980e2005058_businessman_touching_red_icon_connected_1.jpg",
+    "teams_id": "3c7dd875-a4bd-4cd7-be80-3c720ecc6318",
+    "isAdmin": true,
+    "status": "accepted",
+    "is_international": true,
+    "employer_id": 251778,
+    "is_team_active": false,
+    "companyId": "664491c6-da4b-460d-9940-9b5af093cf55",
+    "deelMetaData": {
+      "payment_cycle": 60,
+      "avua_commission": 30,
+      "credit_check_flag": true,
+      "is_commission_markup_more": false,
+      "deel_group": {
+        "id": "d91abf92-106d-49ca-8ab6-12a736e69bcb",
+        "name": "",
+        "created_at": "",
+        "updated_at": ""
+      }
+    },
+    "phoneNumber": {
+      "id": "7b3b9a94-b43a-43e9-9856-5a9839a90b71",
+      "cid": "+91",
+      "ph_number": "8979678678",
+      "country_code": "IN"
+    }
+  }
+}

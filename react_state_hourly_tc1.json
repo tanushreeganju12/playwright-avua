@@ -1,0 +1,92 @@
+{
+  "job_space": {
+    "id": "506760d0-36fa-4251-bc3d-f6eaaefc45f3",
+    "title": "untitled"
+  },
+  "job_title": {
+    "id": "5762d24e-356e-4ac6-9584-8f1ab03aec93",
+    "title": "Playwright Test Engineer 1783186107430"
+  },
+  "description": "We are seeking a skilled Playwright Test Engineer.",
+  "skills": [
+    {
+      "id": 1779278918902,
+      "name": "Test Automation"
+    },
+    {
+      "id": 1779278918903,
+      "name": "JavaScript"
+    }
+  ],
+  "evaluation_level": "Strict",
+  "experience": {
+    "min": 3,
+    "max": 10
+  },
+  "work_mode": [
+    "On-site"
+  ],
+  "country": {
+    "id": "d797732d-1ca2-4e60-8ea3-a4f835bd10c1",
+    "name": "United States",
+    "code": "US"
+  },
+  "job_location": {
+    "id": "62814642-60a0-4bc8-85fe-41ea4aa4f8bd",
+    "city": "New York City",
+    "state": "New York",
+    "country": "United States",
+    "code": "US"
+  },
+  "allowGlobalApplicant": true,
+  "contract_type": "pay_as_you_go_time_based",
+  "currency": {
+    "id": "147d3656-bdb9-4d9a-9ec5-e5888be55e64",
+    "country_id": "d797732d-1ca2-4e60-8ea3-a4f835bd10c1",
+    "code": "USD"
+  },
+  "salaryField": "exact_amount",
+  "exact_amount": 100,
+  "minimum_amount": 0,
+  "maximum_amount": 0,
+  "milestoneItems": [],
+  "completion_criteria": "",
+  "contract_length": "6",
+  "contract_start_date": "2026-07-04",
+  "terms_and_conditions": true,
+  "technicalPercentage": 70,
+  "is_eor": true,
+  "employerProfileData": {
+    "first_name": "",
+    "last_name": "",
+    "designation": "",
+    "phone": "",
+    "email": "",
+    "profile_pic_path": "",
+    "company": "",
+    "logo": "",
+    "teams_id": "",
+    "isAdmin": "",
+    "status": "",
+    "is_international": false,
+    "employer_id": "",
+    "is_team_active": true,
+    "companyId": "",
+    "deelMetaData": null
+  },
+  "contract_job_payment_details": {
+    "currency": "USD",
+    "contract_length": 6,
+    "start_date": "2026-07-04T00:00:00.000Z",
+    "scope_of_work": "We are seeking a skilled Playwright Test Engineer.",
+    "minimum_amount": 100,
+    "maximum_amount": 100,
+    "milestones": [],
+    "contractor_payment_amount": 100,
+    "company_budget_for_candidate": 100
+  },
+  "expected_salary": {
+    "min": 100,
+    "max": 100
+  }
+}
