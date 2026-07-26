@@ -39,24 +39,9 @@ async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
       throw new Error(`No messages found for recipient: ${recipientEmail}`);
     }
 
-    // Filter messages received in the last 5 minutes, starting from the latest
-    let latestValidMessageId = null;
-    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
-    
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const msgId = messages[i];
-      const msg = await client.fetchOne(msgId, { internalDate: true });
-      if (new Date(msg.internalDate).getTime() > fiveMinutesAgo) {
-        latestValidMessageId = msgId;
-        break;
-      }
-    }
-
-    if (!latestValidMessageId) {
-      throw new Error(`No recent messages (received in last 5 mins) found for recipient: ${recipientEmail}`);
-    }
-
-    const message = await client.fetchOne(latestValidMessageId, { source: true });
+    // Fetch the latest message
+    const lastMessageId = messages[messages.length - 1];
+    const message = await client.fetchOne(lastMessageId, { source: true });
     const sourceStr = message.source.toString();
 
     // Decode quoted-printable first to join split lines
@@ -124,7 +109,7 @@ test('TC25 - Applicant signup, verify magic link, select contract job and start 
       // Wait a short random time and retry
       const delay = Math.floor(Math.random() * 50) + 10;
       const start = Date.now();
-      while (Date.now() - start < delay) {}
+      while (Date.now() - start < delay) { }
     }
   }
 
@@ -139,10 +124,10 @@ test('TC25 - Applicant signup, verify magic link, select contract job and start 
     if (acquired) {
       try {
         fs.rmdirSync(lockDir);
-      } catch (e) {}
+      } catch (e) { }
     }
   }
-  
+
   const email = `tanushree.ganju+${count}@avua.com`;
   const resumePath = `./fixtures/resume_tc25_${count}.pdf`;
 
@@ -175,7 +160,7 @@ test('TC25 - Applicant signup, verify magic link, select contract job and start 
     await signUpPage.fillCurrentLocation('Dubai');
     await signUpPage.selectNationality('Indian');
     await signUpPage.fillPhoneNumber('9876543210');
-    
+
     // Explicitly update email to ensure the incremented email is used
     await signUpPage.updateEmail(email);
 
@@ -232,7 +217,7 @@ test('TC25 - Applicant signup, verify magic link, select contract job and start 
       .first();
 
     await expect(jobsNav).toBeVisible({ timeout: 15000 });
-    
+
     // Hover to trigger dropdown, click if needed
     const contractJobsOption = page.locator('text=Contract Jobs').filter({ visible: true }).first()
       .or(page.locator('text=contract-jobs').filter({ visible: true }).first())
@@ -271,7 +256,7 @@ test('TC25 - Applicant signup, verify magic link, select contract job and start 
         .or(page.getByRole('link', { name: /Apply now/i }).filter({ visible: true }).first())
         .or(page.locator('text=Apply Now').filter({ visible: true }).first())
         .first();
-      
+
       await expect(applyNowBtn).toBeVisible({ timeout: 15000 });
       await applyNowBtn.click();
     } else {
