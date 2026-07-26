@@ -29,8 +29,10 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: npx playwright test
+      run: xvfb-run npx playwright test --workers=1
       env:
+        IMAP_USER: ${{ secrets.IMAP_USER }}
+        IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
         JIRA_URL: ${{ secrets.JIRA_URL }}
         JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
         JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
