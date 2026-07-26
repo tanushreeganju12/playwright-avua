@@ -16,10 +16,8 @@ test('Intercept Job Post', async ({ page }) => {
     }
   });
 
-  await employerPage.fillStep1Details('Test Engineer', 'Need a playwright automation expert', 'Playwright', '100', '6', 'Hybrid', '4', '10');
+  await employerPage.fillStep1Details('Test Engineer', 'Hybrid', 'Need a playwright automation expert', true, 4);
   
-  // Use lowercase hybrid override for the run just so it gets past step 3 validation
-  await employerPage.injectReactStateOverrides(100, '6', 'Test Engineer', 'hybrid');
   
   await page.getByRole('button', { name: 'Continue', exact: true }).first().click();
   await page.waitForTimeout(2000);

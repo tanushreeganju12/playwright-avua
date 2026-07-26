@@ -9,9 +9,9 @@ const authFile = 'playwright/.auth/user.json';
 setup('authenticate', async ({ page }) => {
   // 1. Run non-blocking warmup signup in a separate context to initialize email delivery channel
   try {
-    console.log('Global Setup: Running warmup signup...');
-    const warmupEmail = 'tanushree.ganju+warmup@avua.com';
-    const resumePath = './fixtures/resume_warmup.pdf';
+    const runNumber = parseInt(process.env.GITHUB_RUN_NUMBER || '1', 10);
+    const warmupEmail = `tanushree.ganju+warmup${runNumber}@avua.com`;
+    const resumePath = `./fixtures/resume_warmup_${runNumber}.pdf`;
     
     await generateResume({
       name: 'Warmup User',

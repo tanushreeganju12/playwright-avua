@@ -136,9 +136,11 @@ export class AvuaEmployerPage {
   }
 
   async proceedToStep3(): Promise<void> {
-    await expect(this.reviewButton).toBeVisible();
+    await expect(this.reviewButton).toBeVisible({ timeout: 15000 });
+    await expect(this.reviewButton).toBeEnabled({ timeout: 15000 });
+    await this.page.waitForTimeout(1000);
     await this.reviewButton.click();
-    await expect(this.publishButton).toBeVisible({ timeout: 15000 });
+    await expect(this.publishButton).toBeVisible({ timeout: 25000 });
   }
 
   async publishJob(): Promise<void> {
