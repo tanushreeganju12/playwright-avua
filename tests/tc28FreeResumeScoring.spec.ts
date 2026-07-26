@@ -33,19 +33,32 @@ async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
   const lock = await client.getMailboxLock('INBOX');
 
   try {
-    // Search for emails sent to the specific sub-addressed recipient email
-    const messages = await client.search({ to: recipientEmail });
+    const messages = await client.search({ all: true });
     if (messages.length === 0) {
+      throw new Error('No messages found in INBOX.');
+    }
+
+    let lastMessageId = null;
+    let messageSource = null;
+
+    // Search from newest to oldest (up to 15 latest messages)
+    for (let i = messages.length - 1; i >= Math.max(0, messages.length - 15); i--) {
+      const msgId = messages[i];
+      const message = await client.fetchOne(msgId, { source: true });
+      const sourceStr = message.source.toString();
+      if (sourceStr.includes(recipientEmail)) {
+        lastMessageId = msgId;
+        messageSource = sourceStr;
+        break;
+      }
+    }
+
+    if (!messageSource) {
       throw new Error(`No messages found for recipient: ${recipientEmail}`);
     }
 
-    // Fetch the latest message
-    const lastMessageId = messages[messages.length - 1];
-    const message = await client.fetchOne(lastMessageId, { source: true });
-    const sourceStr = message.source.toString();
-
     // Decode quoted-printable first to join split lines
-    let decodedSource = sourceStr.replace(/=3D/g, '=');
+    let decodedSource = messageSource.replace(/=3D/g, '=');
     decodedSource = decodedSource.replace(/=\r?\n/g, '');
     decodedSource = decodedSource.replace(/=\n/g, '');
     decodedSource = decodedSource.replace(/&amp;/g, '&');
@@ -56,7 +69,7 @@ async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
 
     if (!matches) {
       console.log('--- Matches failed. Writing source to email_source.txt ---');
-      fs.writeFileSync('email_source.txt', sourceStr);
+      fs.writeFileSync('email_source.txt', messageSource);
       throw new Error('No links found in email content. Full source saved to email_source.txt.');
     }
 
@@ -64,7 +77,7 @@ async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
     const magicLink = matches.find((u: string) => u.includes('email-verify') || u.includes('token') || u.includes('callback') || u.includes('login'));
     if (!magicLink) {
       console.log('--- Filter failed. Writing source to email_source.txt ---');
-      fs.writeFileSync('email_source.txt', sourceStr);
+      fs.writeFileSync('email_source.txt', messageSource);
       throw new Error('Could not find the verification link in the parsed URLs. Full source saved to email_source.txt.');
     }
     return magicLink;
@@ -77,7 +90,7 @@ async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
 /**
  * Polls the Gmail inbox until the magic link email arrives and is successfully parsed.
  */
-async function pollForMagicLink(recipientEmail: string, maxAttempts = 15): Promise<string> {
+async function pollForMagicLink(recipientEmail: string, maxAttempts = 40): Promise<string> {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     console.log(`Polling for magic link email to ${recipientEmail} (Attempt ${attempt}/${maxAttempts})...`);
     try {
