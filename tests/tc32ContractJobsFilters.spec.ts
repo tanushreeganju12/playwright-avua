@@ -114,17 +114,22 @@ test('TC32 - Logged in applicant filters contract jobs by date posted and work m
   }
 
   let count = 60;
-  try {
-    if (fs.existsSync(counterFile)) {
-      const data = JSON.parse(fs.readFileSync(counterFile, 'utf8'));
-      count = (data.count || 59) + 1;
-    }
-    fs.writeFileSync(counterFile, JSON.stringify({ count }));
-  } finally {
-    if (acquired) {
-      try {
-        fs.rmdirSync(lockDir);
-      } catch (e) {}
+  if (process.env.CI) {
+    const runNumber = parseInt(process.env.GITHUB_RUN_NUMBER || '1', 10);
+    count = 1000 + (runNumber * 10) + 4;
+  } else {
+    try {
+      if (fs.existsSync(counterFile)) {
+        const data = JSON.parse(fs.readFileSync(counterFile, 'utf8'));
+        count = (data.count || 59) + 1;
+      }
+      fs.writeFileSync(counterFile, JSON.stringify({ count }));
+    } finally {
+      if (acquired) {
+        try {
+          fs.rmdirSync(lockDir);
+        } catch (e) {}
+      }
     }
   }
   
