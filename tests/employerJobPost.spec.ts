@@ -654,13 +654,13 @@ test.describe('Employer Job Posting Flow', () => {
         language: 'English'
     });
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Review', exact: true }).click({ force: true });
-      const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-      await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    }).toPass({ timeout: 60000 });
-    
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true }).first();
+    await expect(reviewBtn).toBeVisible({ timeout: 15000 });
+    await expect(reviewBtn).toBeEnabled({ timeout: 15000 });
+    await reviewBtn.click();
+
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 20000 });
 
     const backBtn = page.getByRole('button', { name: 'Back', exact: true }).first();
     await backBtn.click();
