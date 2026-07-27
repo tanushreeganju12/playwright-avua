@@ -13,7 +13,7 @@ test.use({ storageState: { cookies: [], origins: [] } });
  * Connects to Gmail via IMAP and searches for the magic sign-in link
  * sent to the recipientEmail.
  */
-async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
+async function pollForMagicLink(recipientEmail: string, maxAttempts = 90): Promise<string> {
   const user = process.env.IMAP_USER;
   const pass = process.env.IMAP_PASSWORD;
 
@@ -33,77 +33,53 @@ async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
   const lock = await client.getMailboxLock('INBOX');
 
   try {
-    const messages = await client.search({ all: true });
-    if (messages.length === 0) {
-      throw new Error('No messages found in INBOX.');
-    }
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      console.log(`Polling for magic link email to ${recipientEmail} (Attempt ${attempt}/${maxAttempts})...`);
+      try {
+        const messages = await client.search({ all: true });
+        if (messages.length > 0) {
+          let messageSource = null;
 
-    let lastMessageId = null;
-    let messageSource = null;
+          // Search from newest to oldest (up to 15 latest messages)
+          for (let i = messages.length - 1; i >= Math.max(0, messages.length - 15); i--) {
+            const msgId = messages[i];
+            const message = await client.fetchOne(msgId, { source: true });
+            const sourceStr = message.source.toString();
+            if (sourceStr.includes(recipientEmail)) {
+              messageSource = sourceStr;
+              break;
+            }
+          }
 
-    // Search from newest to oldest (up to 15 latest messages)
-    for (let i = messages.length - 1; i >= Math.max(0, messages.length - 15); i--) {
-      const msgId = messages[i];
-      const message = await client.fetchOne(msgId, { source: true });
-      const sourceStr = message.source.toString();
-      if (sourceStr.includes(recipientEmail)) {
-        lastMessageId = msgId;
-        messageSource = sourceStr;
-        break;
+          if (messageSource) {
+            // Decode quoted-printable first to join split lines
+            let decodedSource = messageSource.replace(/=3D/g, '=');
+            decodedSource = decodedSource.replace(/=\r?\n/g, '');
+            decodedSource = decodedSource.replace(/=\n/g, '');
+            decodedSource = decodedSource.replace(/&amp;/g, '&');
+
+            // Regex to locate any link starting with https://
+            const regex = /https:\/\/[^\s"'>]+/g;
+            const matches = decodedSource.match(regex);
+
+            if (matches) {
+              const magicLink = matches.find((u: string) => u.includes('email-verify') || u.includes('token') || u.includes('callback') || u.includes('login'));
+              if (magicLink) {
+                return magicLink;
+              }
+            }
+          }
+        }
+      } catch (e: any) {
+        console.log(`Attempt ${attempt} failed: ${e.message}`);
       }
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
-
-    if (!messageSource) {
-      throw new Error(`No messages found for recipient: ${recipientEmail}`);
-    }
-
-    // Decode quoted-printable first to join split lines
-    let decodedSource = messageSource.replace(/=3D/g, '=');
-    decodedSource = decodedSource.replace(/=\r?\n/g, '');
-    decodedSource = decodedSource.replace(/=\n/g, '');
-    decodedSource = decodedSource.replace(/&amp;/g, '&');
-
-    // Regex to locate any link starting with https://
-    const regex = /https:\/\/[^\s"'>]+/g;
-    const matches = decodedSource.match(regex);
-
-    if (!matches) {
-      console.log('--- Matches failed. Writing source to email_source.txt ---');
-      fs.writeFileSync('email_source.txt', messageSource);
-      throw new Error('No links found in email content. Full source saved to email_source.txt.');
-    }
-
-    // Filter to find the link that is for email-verify, login, token or callback
-    const magicLink = matches.find((u: string) => u.includes('email-verify') || u.includes('token') || u.includes('callback') || u.includes('login'));
-    if (!magicLink) {
-      console.log('--- Filter failed. Writing source to email_source.txt ---');
-      fs.writeFileSync('email_source.txt', messageSource);
-      throw new Error('Could not find the verification link in the parsed URLs. Full source saved to email_source.txt.');
-    }
-    return magicLink;
+    throw new Error(`Timeout waiting for magic link email to ${recipientEmail}`);
   } finally {
     lock.release();
     await client.logout();
   }
-}
-
-/**
- * Polls the Gmail inbox until the magic link email arrives and is successfully parsed.
- */
-async function pollForMagicLink(recipientEmail: string, maxAttempts = 90): Promise<string> {
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    console.log(`Polling for magic link email to ${recipientEmail} (Attempt ${attempt}/${maxAttempts})...`);
-    try {
-      const link = await getMagicLinkFromEmail(recipientEmail);
-      if (link) {
-        return link;
-      }
-    } catch (e: any) {
-      console.log(`Attempt ${attempt} failed: ${e.message}`);
-    }
-    await new Promise(resolve => setTimeout(resolve, 3000));
-  }
-  throw new Error(`Timeout waiting for magic link email to ${recipientEmail}`);
 }
 
 test('TC28 - Applicant signup, verify magic link, select full-time job and verify CV Upload redirect', async ({ page }) => {
