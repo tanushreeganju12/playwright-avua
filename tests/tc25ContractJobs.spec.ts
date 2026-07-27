@@ -90,7 +90,7 @@ async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
 /**
  * Polls the Gmail inbox until the magic link email arrives and is successfully parsed.
  */
-async function pollForMagicLink(recipientEmail: string, maxAttempts = 20): Promise<string> {
+async function pollForMagicLink(recipientEmail: string, maxAttempts = 28): Promise<string> {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     console.log(`Polling for magic link email to ${recipientEmail} (Attempt ${attempt}/${maxAttempts})...`);
     try {
@@ -107,7 +107,7 @@ async function pollForMagicLink(recipientEmail: string, maxAttempts = 20): Promi
 }
 
 test('TC25 - Applicant signup, verify magic link, select contract job and start interview', async ({ page }) => {
-  test.setTimeout(360000); // 6 minutes timeout for CI greylisting delay
+  test.setTimeout(480000); // 8 minutes timeout for CI greylisting delay
 
   // Step 1: Manage email increment counter using atomic directory lock to prevent race conditions in parallel runs
   const counterFile = path.join(__dirname, 'email_counter.json');
