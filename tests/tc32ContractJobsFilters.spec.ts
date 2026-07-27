@@ -3,6 +3,9 @@ import { AvuaSignUpPage } from '../pages/AvuaSignUpPage';
 import { generateResume } from '../utils/pdfGenerator';
 import fs from 'fs';
 import path from 'path';
+import dns from 'dns';
+
+dns.setDefaultResultOrder('ipv4first');
 
 // Use require for imapflow to prevent compilation errors if @types/imapflow is missing
 const { ImapFlow } = require('imapflow');
@@ -27,6 +30,10 @@ async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
     secure: true,
     auth: { user, pass },
     logger: false
+  });
+
+  client.on('error', (err: any) => {
+    console.log(`IMAP client background error: ${err.message}`);
   });
 
   await client.connect();

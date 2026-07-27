@@ -1,4 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
 
 export default defineConfig({
   testDir: './tests',
