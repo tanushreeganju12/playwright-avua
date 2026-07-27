@@ -40,29 +40,14 @@ async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
   const lock = await client.getMailboxLock('INBOX');
 
   try {
-    const messages = await client.search({ all: true });
+    const messages = await client.search({ to: recipientEmail });
     if (messages.length === 0) {
-      throw new Error('No messages found in INBOX.');
-    }
-
-    let lastMessageId = null;
-    let messageSource = null;
-
-    // Search from newest to oldest (up to 15 latest messages)
-    for (let i = messages.length - 1; i >= Math.max(0, messages.length - 15); i--) {
-      const msgId = messages[i];
-      const message = await client.fetchOne(msgId, { source: true });
-      const sourceStr = message.source.toString();
-      if (sourceStr.includes(recipientEmail)) {
-        lastMessageId = msgId;
-        messageSource = sourceStr;
-        break;
-      }
-    }
-
-    if (!messageSource) {
       throw new Error(`No messages found for recipient: ${recipientEmail}`);
     }
+
+    const msgId = messages[messages.length - 1];
+    const message = await client.fetchOne(msgId, { source: true });
+    const messageSource = message.source.toString();
 
     // Decode quoted-printable first to join split lines
     let decodedSource = messageSource.replace(/=3D/g, '=');
