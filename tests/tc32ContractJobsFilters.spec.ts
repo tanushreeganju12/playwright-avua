@@ -16,7 +16,7 @@ test.use({ storageState: { cookies: [], origins: [] } });
  * Connects to Gmail via IMAP and searches for the magic sign-in link
  * sent to the recipientEmail.
  */
-async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
+async function getMagicLinkFromEmail(recipientEmail: string, startTime: number): Promise<string> {
   const user = process.env.IMAP_USER;
   const pass = process.env.IMAP_PASSWORD;
 
@@ -46,7 +46,14 @@ async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
     }
 
     const msgId = messages[messages.length - 1];
-    const message = await client.fetchOne(msgId, { source: true });
+    const message = await client.fetchOne(msgId, { source: true, internalDate: true });
+    
+    // Check if the email was received after the test start time (with 60 seconds buffer)
+    const emailTime = message.internalDate ? message.internalDate.getTime() : 0;
+    if (emailTime < startTime - 60000) {
+      throw new Error(`Latest email is stale (received at ${message.internalDate?.toISOString()}), waiting for a newer one.`);
+    }
+
     const messageSource = message.source.toString();
 
     // Decode quoted-printable first to join split lines
@@ -82,11 +89,11 @@ async function getMagicLinkFromEmail(recipientEmail: string): Promise<string> {
 /**
  * Polls the Gmail inbox until the magic link email arrives and is successfully parsed.
  */
-async function pollForMagicLink(recipientEmail: string, maxAttempts = 55): Promise<string> {
+async function pollForMagicLink(recipientEmail: string, startTime: number, maxAttempts = 55): Promise<string> {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     console.log(`Polling for magic link email to ${recipientEmail} (Attempt ${attempt}/${maxAttempts})...`);
     try {
-      const link = await getMagicLinkFromEmail(recipientEmail);
+      const link = await getMagicLinkFromEmail(recipientEmail, startTime);
       if (link) {
         return link;
       }
@@ -176,13 +183,14 @@ test('TC32 - Logged in applicant filters contract jobs by date posted and work m
 
     // Step 6: Submit create account form
     console.log('Submitting create account...');
+    const testStartTime = Date.now();
     await signUpPage.submitCreateAccount();
     await signUpPage.assertSuccessMessage(email);
     console.log('Account creation success message verified.');
 
     // Step 7: Retrieve verification/magic link via Gmail IMAP
     console.log('Retrieving verification magic link from email...');
-    const magicLink = await pollForMagicLink(email);
+    const magicLink = await pollForMagicLink(email, testStartTime);
     console.log(`Successfully retrieved magic link: ${magicLink}`);
 
     // Step 8: Navigate to magic link to verify account and load dashboard
