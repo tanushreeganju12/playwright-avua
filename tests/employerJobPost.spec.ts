@@ -579,13 +579,13 @@ test.describe('Employer Job Posting Flow', () => {
         language: 'English'
     });
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Review', exact: true }).click({ force: true });
-      const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-      await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    }).toPass({ timeout: 60000 });
-    
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
+    await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
+    await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 25000 });
+    
+
 
     const editPaymentDetailsBtn = page.getByRole('button', { name: 'Edit' }).nth(2);
     await editPaymentDetailsBtn.click();
@@ -597,9 +597,9 @@ test.describe('Employer Job Posting Flow', () => {
     await amountInputStep2.fill('60');
     await amountInputStep2.blur();
 
-    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
-    if (await reviewBtn.isVisible()) {
-       await reviewBtn.click();
+    const reviewBtn2 = page.getByRole('button', { name: 'Review', exact: true });
+    if (await reviewBtn2.isVisible()) {
+       await reviewBtn2.click();
     }
     
     await expect(publishBtn).toBeVisible({ timeout: 10000 });
