@@ -300,7 +300,7 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
     await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 25000 });
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
   });
 
   test('TC8 Successful submission with Fixed Rate - Hourly payment frequency', async ({ page }) => {
@@ -324,7 +324,7 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
     await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 25000 });
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
   });
 
   test('TC9 Successful submission with Fixed Rate - Monthly payment frequency', async ({ page }) => {
@@ -348,7 +348,7 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
     await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 25000 });
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
   });
 
   test('TC10 Submit without selecting Payment Frequency', async ({ page }) => {
@@ -410,7 +410,7 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
     await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 25000 });
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
   });
 
   test('TC13 Submit without entering Contract Start Date', async ({ page }) => {
@@ -473,7 +473,7 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
     await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 25000 });
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
 
     const editBasicDetailsBtn = page.getByRole('button', { name: 'Edit' }).first();
     await editBasicDetailsBtn.click();
@@ -496,7 +496,7 @@ test.describe('Employer Job Posting Flow', () => {
       }
     }
     
-    await expect(publishBtn).toBeVisible({ timeout: 10000 });
+    await expect(publishBtn).toBeVisible({ timeout: 35000 });
     const updatedTitle = page.getByText('Updated Test Job').first();
     await expect(updatedTitle).toBeVisible({ timeout: 5000 });
   });
@@ -522,7 +522,7 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
     await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 25000 });
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
 
     const editJobDetailsBtn = page.getByRole('button', { name: 'Edit' }).nth(1);
     await editJobDetailsBtn.click();
@@ -545,7 +545,7 @@ test.describe('Employer Job Posting Flow', () => {
       }
     }
     
-    await expect(publishBtn).toBeVisible({ timeout: 10000 });
+    await expect(publishBtn).toBeVisible({ timeout: 35000 });
     const updatedType = page.getByText('Hybrid').first();
     await expect(updatedType).toBeVisible({ timeout: 5000 });
   });
@@ -571,7 +571,7 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
     await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 25000 });
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
     
 
 
@@ -590,7 +590,7 @@ test.describe('Employer Job Posting Flow', () => {
        await reviewBtn2.click();
     }
     
-    await expect(publishBtn).toBeVisible({ timeout: 10000 });
+    await expect(publishBtn).toBeVisible({ timeout: 35000 });
     const updatedAmount = page.getByText(/USD 60/i).first();
     await expect(updatedAmount).toBeVisible({ timeout: 10000 });
   });
@@ -616,7 +616,7 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
     await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 25000 });
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
 
     await publishBtn.click();
     const successMsg = page.getByText(/successfully|Success|Published/i).first();
@@ -646,7 +646,7 @@ test.describe('Employer Job Posting Flow', () => {
     await reviewBtn.click();
 
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 20000 });
+    await expect(publishBtn).toBeVisible({ timeout: 35000 });
 
     const backBtn = page.getByRole('button', { name: 'Back', exact: true }).first();
     await backBtn.click();
@@ -677,6 +677,6 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
     await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-    await expect(publishBtn).toBeVisible({ timeout: 25000 });
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
   });
 });

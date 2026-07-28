@@ -178,8 +178,9 @@ export class AvuaEmployerPage {
 
     const paymentHeading = this.page.getByRole('heading', { name: /Payment Details/i }).first();
     await expect(paymentHeading).toBeVisible({ timeout: 10000 });
-    // Wait for React to hydrate and attach event listeners
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForLoadState('networkidle').catch(() => {});
+    // Wait for React to fully hydrate and attach event listeners
+    await this.page.waitForTimeout(3000); 
 
     // ── Step A: Engagement model first — its re-render resets payment fields, so we fill payment AFTER ──
     if (engagementModel) {
@@ -226,23 +227,25 @@ export class AvuaEmployerPage {
     // ── Step D: Payment frequency — after engagement model so IC re-render can't wipe it ──
     //           Filled before contractLength/startDate because it may trigger a scope-section re-render
     if (frequency) {
+      const freqLabel = this.page.getByText('Payment frequency').first();
+      await freqLabel.scrollIntoViewIfNeeded();
+      const freqContainer = freqLabel.locator('..');
+      
       await expect(async () => {
-        const freqLabel = this.page.getByText('Payment frequency').first();
-        await freqLabel.scrollIntoViewIfNeeded();
-        const freqContainer = freqLabel.locator('..');
-        await freqContainer.click({ force: true });
-        await this.page.waitForTimeout(800);
-
-        // Click the matching option
-        let freqOption = this.page.getByText(frequency, { exact: true }).last();
+        // Find the option inside the container to prevent matching text elsewhere on the page
+        const freqOption = freqContainer.locator('[class*="option"], div, li').filter({ hasText: new RegExp(`^${frequency}$`) }).first();
+        
+        // If option is not visible, open the dropdown
         if (!await freqOption.isVisible().catch(() => false)) {
-          freqOption = this.page.locator(`[id*="react-select"], [class*="option"], li`).filter({ hasText: frequency }).first();
+          await freqContainer.click({ force: true });
+          await freqOption.waitFor({ state: 'visible', timeout: 4000 }).catch(() => {});
         }
-        await freqOption.waitFor({ state: 'visible', timeout: 5000 });
-        await freqOption.click();
-        await this.page.waitForTimeout(500);
 
-        // Verify the dropdown now reflects the selected value
+        await freqOption.click({ force: true });
+        await this.page.waitForTimeout(1000);
+
+
+        // Verify the option was selected by checking if the input element has the value
         const freqInput = this.page.locator('input[placeholder*="payment frequency"]').first();
         await expect(freqInput).toHaveValue(frequency, { timeout: 3000 });
       }).toPass({ timeout: 20000 });
