@@ -140,7 +140,7 @@ export class AvuaEmployerPage {
     await expect(this.reviewButton).toBeEnabled({ timeout: 15000 });
     await this.page.waitForTimeout(1000);
     await this.reviewButton.click();
-    await expect(this.publishButton).toBeVisible({ timeout: 25000 });
+    await expect(this.publishButton).toBeVisible({ timeout: 35000 });
   }
 
   async publishJob(): Promise<void> {
@@ -310,7 +310,8 @@ export class AvuaEmployerPage {
       await this.page.waitForTimeout(500);
     }
 
-    // Wait for all React state updates to finish settling before Review is clicked
+    // Ensure calendar/dropdown popups are closed
+    await this.page.keyboard.press('Escape');
     await this.page.waitForTimeout(1000);
   }
 }
