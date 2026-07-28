@@ -48,9 +48,9 @@ async function getMagicLinkFromEmail(recipientEmail: string, startTime: number):
     const msgId = messages[messages.length - 1];
     const message = await client.fetchOne(msgId, { source: true, internalDate: true });
     
-    // Check if the email was received after the test start time (with 60 seconds buffer)
+    // Check if the email was received after the test start time (with 10 minutes buffer for clock drift)
     const emailTime = message.internalDate ? message.internalDate.getTime() : 0;
-    if (emailTime < startTime - 60000) {
+    if (emailTime < startTime - 10 * 60 * 1000) {
       throw new Error(`Latest email is stale (received at ${message.internalDate?.toISOString()}), waiting for a newer one.`);
     }
 
@@ -128,7 +128,8 @@ test('TC32 - Logged in applicant filters contract jobs by date posted and work m
   let count = 60;
   if (process.env.CI) {
     const runNumber = parseInt(process.env.GITHUB_RUN_NUMBER || '1', 10);
-    count = 1000 + (runNumber * 10) + 4;
+    const runAttempt = parseInt(process.env.GITHUB_RUN_ATTEMPT || '1', 10);
+    count = 10000 + (runNumber * 100) + (runAttempt * 10) + 4;
   } else {
     try {
       if (fs.existsSync(counterFile)) {
