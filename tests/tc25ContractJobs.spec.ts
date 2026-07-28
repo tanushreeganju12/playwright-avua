@@ -40,21 +40,39 @@ async function getMagicLinkFromEmail(recipientEmail: string, startTime: number):
   const lock = await client.getMailboxLock('INBOX');
 
   try {
-    const messages = await client.search({ to: recipientEmail });
+    const messages = await client.search({ all: true });
     if (messages.length === 0) {
-      throw new Error(`No messages found for recipient: ${recipientEmail}`);
+      throw new Error(`No messages found in INBOX.`);
     }
 
-    const msgId = messages[messages.length - 1];
-    const message = await client.fetchOne(msgId, { source: true, internalDate: true });
-    
+    // Scan the last 15 messages in memory to find our recipient
+    const last15 = messages.slice(-15);
+    let matchedMsg = null;
+
+    for (let i = last15.length - 1; i >= 0; i--) {
+      const msgId = last15[i];
+      const message = await client.fetchOne(msgId, { source: true, internalDate: true, envelope: true });
+      const toAddresses = message.envelope?.to || [];
+      const hasRecipient = toAddresses.some(addr => 
+        addr.address && addr.address.toLowerCase() === recipientEmail.toLowerCase()
+      );
+      if (hasRecipient) {
+        matchedMsg = message;
+        break;
+      }
+    }
+
+    if (!matchedMsg) {
+      throw new Error(`No messages found for recipient: ${recipientEmail} in the last 15 emails.`);
+    }
+
     // Check if the email was received after the test start time (with 10 minutes buffer for clock drift)
-    const emailTime = message.internalDate ? message.internalDate.getTime() : 0;
+    const emailTime = matchedMsg.internalDate ? matchedMsg.internalDate.getTime() : 0;
     if (emailTime < startTime - 10 * 60 * 1000) {
-      throw new Error(`Latest email is stale (received at ${message.internalDate?.toISOString()}), waiting for a newer one.`);
+      throw new Error(`Latest email is stale (received at ${matchedMsg.internalDate?.toISOString()}), waiting for a newer one.`);
     }
 
-    const messageSource = message.source.toString();
+    const messageSource = matchedMsg.source.toString();
 
     // Decode quoted-printable first to join split lines
     let decodedSource = messageSource.replace(/=3D/g, '=');
