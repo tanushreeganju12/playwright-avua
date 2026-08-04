@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('C1 - Required Field Validation', () => {
 
 
-  test('TC20 - Error message is shown when First Name is left blank', async ({ page }) => {
+  test('TC41 - should display error message when First Name input is left blank', async ({ page }) => {
     test.setTimeout(120000);
 
     // Step 1: Navigate to the Contact Us page
@@ -49,7 +49,7 @@ test.describe('C1 - Required Field Validation', () => {
   });
 
 
-  test('TC21 - Error message is shown when Email is left blank', async ({ page }) => {
+  test('TC42 - should display error message when Email input is left blank', async ({ page }) => {
     test.setTimeout(120000);
 
     // Step 1: Navigate to the Contact Us page
@@ -93,7 +93,7 @@ test.describe('C1 - Required Field Validation', () => {
   });
 
 
-  test('TC22 - Error message is shown when Mobile Number is left blank', async ({ page }) => {
+  test('TC43 - should display error message when Mobile Number input is left blank', async ({ page }) => {
     test.setTimeout(120000);
 
     // Step 1: Navigate to the Contact Us page
@@ -139,7 +139,7 @@ test.describe('C1 - Required Field Validation', () => {
   });
 
 
-  test('TC23 - Validation error is shown when Designation is left blank', async ({ page }) => {
+  test('TC44 - should display validation error when Designation input is left blank', async ({ page }) => {
     test.setTimeout(120000);
 
     // Step 1: Navigate to the Contact Us page
@@ -184,7 +184,7 @@ test.describe('C1 - Required Field Validation', () => {
   });
 
 
-  test('TC24 - Error message is shown when Message is left blank', async ({ page }) => {
+  test('TC45 - should display error message when Message textarea is left blank', async ({ page }) => {
     test.setTimeout(120000);
 
     // Step 1: Navigate to the Contact Us page
@@ -247,7 +247,7 @@ test.describe('C1 - Required Field Validation', () => {
    *   - Last Name has no error (it is optional)
    *   - Form is not submitted (URL stays on /contact-us)
    */
-  test('TC25 - All required field errors shown when no fields are filled', async ({ page }) => {
+  test('TC46 - should display required field validation errors when submitting an empty form', async ({ page }) => {
     test.setTimeout(120000);
 
     // Step 1: Navigate to the Contact Us page
@@ -304,7 +304,7 @@ test.describe('C1 - Required Field Validation', () => {
    *   - Invalid email format error 'Please enter a valid email' is displayed
    *   - Form is not submitted (URL stays on /contact-us)
    */
-  test('TC26 - Invalid email format error is shown for email missing @', async ({ page }) => {
+  test('TC47 - should reject email address missing @ symbol with invalid format error', async ({ page }) => {
     test.setTimeout(120000);
 
     // Step 1: Navigate to the Contact Us page
@@ -364,7 +364,7 @@ test.describe('C1 - Required Field Validation', () => {
    *   - Invalid email format error 'Please enter a valid email' is displayed
    *   - Form is not submitted (URL stays on /contact-us)
    */
-  test('TC27 - Invalid email format error is shown for email missing domain (user@)', async ({ page }) => {
+  test('TC48 - should reject email address missing domain with invalid format error', async ({ page }) => {
     test.setTimeout(120000);
 
     // Step 1: Navigate to the Contact Us page
@@ -424,7 +424,7 @@ test.describe('C1 - Required Field Validation', () => {
    *   - No email format error is displayed
    *   - Form proceeds to submission (no email validation error blocks it)
    */
-  test('TC28 - No email error shown when valid email is entered', async ({ page }) => {
+  test('TC49 - should clear email error notification upon providing a valid email format', async ({ page }) => {
     test.setTimeout(120000);
 
     // Step 1: Navigate to the Contact Us page
@@ -503,7 +503,7 @@ test.describe('C1 - Required Field Validation', () => {
    *   - No phone error is displayed
    *   - Form proceeds to submission (fields cleared after successful submit)
    */
-  test('TC29 - No phone error shown when valid mobile number is entered', async ({ page }) => {
+  test('TC50 - should accept a valid mobile telephone number without validation errors', async ({ page }) => {
     test.setTimeout(120000);
 
     // Step 1: Navigate to the Contact Us page
@@ -579,7 +579,7 @@ test.describe('C1 - Required Field Validation', () => {
    *   - No errors are shown
    *   - Fields are cleared after submission
    */
-  test('TC30 - Form submits successfully when Message textarea is filled', async ({ page }) => {
+  test('TC51 - should successfully process inquiry submission when all required fields are complete', async ({ page }) => {
     test.setTimeout(120000);
 
     // Step 1: Navigate to the Contact Us page
@@ -658,7 +658,7 @@ test.describe('C1 - Required Field Validation', () => {
    *   - No Last Name error is shown (Last Name is optional)
    *   - Fields are cleared after submission
    */
-  test('TC31 - Form submits successfully when Last Name is left blank (optional field)', async ({ page }) => {
+  test('TC52 - should successfully process submission when optional Last Name is omitted', async ({ page }) => {
     test.setTimeout(120000);
 
     // Step 1: Navigate to the Contact Us page

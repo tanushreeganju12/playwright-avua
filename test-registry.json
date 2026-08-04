@@ -1,7 +1,7 @@
 [
   {
     "id": "bfc6af4a",
-    "description": "FILE-LEVEL TEST: Runs ALL tests inside applicantSignUp.spec.ts. Tests included: Applicant Sign-Up Flow, should sign up applicant via resume upload and AI-prefilled form.",
+    "description": "FILE-LEVEL TEST: Runs ALL tests inside applicantSignUp.spec.ts. Tests included: Applicant Sign-Up Flow, TC29 - should sign up applicant via resume upload and AI-prefilled form.",
     "specPath": "tests/applicantSignUp.spec.ts",
     "grep": null
   },
@@ -12,14 +12,98 @@
     "grep": "Applicant Sign-Up Flow"
   },
   {
-    "id": "b086b4e4",
-    "description": "SPECIFIC TEST CASE: \"should sign up applicant via resume upload and AI-prefilled form\". Use this to run ONLY this specific test.",
+    "id": "dac2a120",
+    "description": "SPECIFIC TEST CASE: \"TC29 - should sign up applicant via resume upload and AI-prefilled form\". Use this to run ONLY this specific test.",
     "specPath": "tests/applicantSignUp.spec.ts",
-    "grep": "should sign up applicant via resume upload and AI-prefilled form"
+    "grep": "TC29 - should sign up applicant via resume upload and AI-prefilled form"
+  },
+  {
+    "id": "b1f07d01",
+    "description": "FILE-LEVEL TEST: Runs ALL tests inside contactUs.spec.ts. Tests included: C1 - Required Field Validation, TC41 - should display error message when First Name input is left blank, TC42 - should display error message when Email input is left blank, TC43 - should display error message when Mobile Number input is left blank, TC44 - should display validation error when Designation input is left blank, TC45 - should display error message when Message textarea is left blank, TC46 - should display required field validation errors when submitting an empty form, TC47 - should reject email address missing @ symbol with invalid format error, TC48 - should reject email address missing domain with invalid format error, TC49 - should clear email error notification upon providing a valid email format, TC50 - should accept a valid mobile telephone number without validation errors, TC51 - should successfully process inquiry submission when all required fields are complete, TC52 - should successfully process submission when optional Last Name is omitted.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": null
+  },
+  {
+    "id": "c61cf73d",
+    "description": "SPECIFIC TEST CASE: \"C1 - Required Field Validation\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "C1 - Required Field Validation"
+  },
+  {
+    "id": "37d3d1ae",
+    "description": "SPECIFIC TEST CASE: \"TC41 - should display error message when First Name input is left blank\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "TC41 - should display error message when First Name input is left blank"
+  },
+  {
+    "id": "c8d1104e",
+    "description": "SPECIFIC TEST CASE: \"TC42 - should display error message when Email input is left blank\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "TC42 - should display error message when Email input is left blank"
+  },
+  {
+    "id": "4c76a130",
+    "description": "SPECIFIC TEST CASE: \"TC43 - should display error message when Mobile Number input is left blank\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "TC43 - should display error message when Mobile Number input is left blank"
+  },
+  {
+    "id": "41b9776b",
+    "description": "SPECIFIC TEST CASE: \"TC44 - should display validation error when Designation input is left blank\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "TC44 - should display validation error when Designation input is left blank"
+  },
+  {
+    "id": "644e90a5",
+    "description": "SPECIFIC TEST CASE: \"TC45 - should display error message when Message textarea is left blank\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "TC45 - should display error message when Message textarea is left blank"
+  },
+  {
+    "id": "795fa5de",
+    "description": "SPECIFIC TEST CASE: \"TC46 - should display required field validation errors when submitting an empty form\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "TC46 - should display required field validation errors when submitting an empty form"
+  },
+  {
+    "id": "bdb06472",
+    "description": "SPECIFIC TEST CASE: \"TC47 - should reject email address missing @ symbol with invalid format error\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "TC47 - should reject email address missing @ symbol with invalid format error"
+  },
+  {
+    "id": "96d07cdb",
+    "description": "SPECIFIC TEST CASE: \"TC48 - should reject email address missing domain with invalid format error\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "TC48 - should reject email address missing domain with invalid format error"
+  },
+  {
+    "id": "b3816232",
+    "description": "SPECIFIC TEST CASE: \"TC49 - should clear email error notification upon providing a valid email format\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "TC49 - should clear email error notification upon providing a valid email format"
+  },
+  {
+    "id": "f76984ee",
+    "description": "SPECIFIC TEST CASE: \"TC50 - should accept a valid mobile telephone number without validation errors\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "TC50 - should accept a valid mobile telephone number without validation errors"
+  },
+  {
+    "id": "4204361a",
+    "description": "SPECIFIC TEST CASE: \"TC51 - should successfully process inquiry submission when all required fields are complete\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "TC51 - should successfully process inquiry submission when all required fields are complete"
+  },
+  {
+    "id": "59a4a29b",
+    "description": "SPECIFIC TEST CASE: \"TC52 - should successfully process submission when optional Last Name is omitted\". Use this to run ONLY this specific test.",
+    "specPath": "tests/contactUs.spec.ts",
+    "grep": "TC52 - should successfully process submission when optional Last Name is omitted"
   },
   {
     "id": "dbdeaf2e",
-    "description": "FILE-LEVEL TEST: Runs ALL tests inside employerJobPost.spec.ts. Tests included: Employer Job Posting Flow, should successfully post a contract job as an employer.",
+    "description": "FILE-LEVEL TEST: Runs ALL tests inside employerJobPost.spec.ts. Tests included: Employer Job Posting Flow, TC07 - should successfully post a contract job as an employer - Onsite, TC08 - should successfully post a contract job as an employer - Hybrid, TC09 - should successfully post a contract job as an employer - Remote, TC10 - should fail validation when job post form is submitted with empty Job Title, TC11 - should fail validation when job post form is submitted with empty Job Summary, TC12 - should fail validation when job post form is submitted without adding any skills, TC13 - should automatically generate job description using Generate with AI capability, TC14 - should successfully populate fields by uploading a JD document, TC15 - should support submission with Fixed Rate and Daily payment frequency, TC16 - should support submission with Fixed Rate and Hourly payment frequency, TC17 - should support submission with Fixed Rate and Monthly payment frequency, TC18 - should fail validation when submitting without selecting a payment frequency, TC19 - should fail validation when submitting without entering a compensation amount, TC20 - should support submission with Independent Contractor (IC) engagement model, TC21 - should fail validation when submitting without entering a Contract Start Date, TC22 - should redirect back to Step 1 when clicking Back button from Step 2, TC23 - should allow editing basic details from the review step, TC24 - should allow editing job specifications from the review step, TC25 - should allow editing payment and contract details from the review step, TC26 - should successfully complete and publish the final job posting, TC27 - should navigate back to Step 2 without losing previously entered data, TC28 - should support submission with Undecided Engagement model option.",
     "specPath": "tests/employerJobPost.spec.ts",
     "grep": null
   },
@@ -30,51 +114,273 @@
     "grep": "Employer Job Posting Flow"
   },
   {
-    "id": "5f362a0c",
-    "description": "SPECIFIC TEST CASE: \"should successfully post a contract job as an employer\". Use this to run ONLY this specific test.",
+    "id": "8cd12db1",
+    "description": "SPECIFIC TEST CASE: \"TC07 - should successfully post a contract job as an employer - Onsite\". Use this to run ONLY this specific test.",
     "specPath": "tests/employerJobPost.spec.ts",
-    "grep": "should successfully post a contract job as an employer"
+    "grep": "TC07 - should successfully post a contract job as an employer - Onsite"
+  },
+  {
+    "id": "210a518b",
+    "description": "SPECIFIC TEST CASE: \"TC08 - should successfully post a contract job as an employer - Hybrid\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC08 - should successfully post a contract job as an employer - Hybrid"
+  },
+  {
+    "id": "17aab14f",
+    "description": "SPECIFIC TEST CASE: \"TC09 - should successfully post a contract job as an employer - Remote\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC09 - should successfully post a contract job as an employer - Remote"
+  },
+  {
+    "id": "7b98d8d3",
+    "description": "SPECIFIC TEST CASE: \"TC10 - should fail validation when job post form is submitted with empty Job Title\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC10 - should fail validation when job post form is submitted with empty Job Title"
+  },
+  {
+    "id": "db0d3f60",
+    "description": "SPECIFIC TEST CASE: \"TC11 - should fail validation when job post form is submitted with empty Job Summary\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC11 - should fail validation when job post form is submitted with empty Job Summary"
+  },
+  {
+    "id": "d8622f10",
+    "description": "SPECIFIC TEST CASE: \"TC12 - should fail validation when job post form is submitted without adding any skills\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC12 - should fail validation when job post form is submitted without adding any skills"
+  },
+  {
+    "id": "7c0572ae",
+    "description": "SPECIFIC TEST CASE: \"TC13 - should automatically generate job description using Generate with AI capability\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC13 - should automatically generate job description using Generate with AI capability"
+  },
+  {
+    "id": "59bce34c",
+    "description": "SPECIFIC TEST CASE: \"TC14 - should successfully populate fields by uploading a JD document\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC14 - should successfully populate fields by uploading a JD document"
+  },
+  {
+    "id": "f4f26992",
+    "description": "SPECIFIC TEST CASE: \"TC15 - should support submission with Fixed Rate and Daily payment frequency\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC15 - should support submission with Fixed Rate and Daily payment frequency"
+  },
+  {
+    "id": "2339090d",
+    "description": "SPECIFIC TEST CASE: \"TC16 - should support submission with Fixed Rate and Hourly payment frequency\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC16 - should support submission with Fixed Rate and Hourly payment frequency"
+  },
+  {
+    "id": "41e59688",
+    "description": "SPECIFIC TEST CASE: \"TC17 - should support submission with Fixed Rate and Monthly payment frequency\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC17 - should support submission with Fixed Rate and Monthly payment frequency"
+  },
+  {
+    "id": "616ce944",
+    "description": "SPECIFIC TEST CASE: \"TC18 - should fail validation when submitting without selecting a payment frequency\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC18 - should fail validation when submitting without selecting a payment frequency"
+  },
+  {
+    "id": "093531ae",
+    "description": "SPECIFIC TEST CASE: \"TC19 - should fail validation when submitting without entering a compensation amount\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC19 - should fail validation when submitting without entering a compensation amount"
+  },
+  {
+    "id": "94c218ee",
+    "description": "SPECIFIC TEST CASE: \"TC20 - should support submission with Independent Contractor (IC) engagement model\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC20 - should support submission with Independent Contractor (IC) engagement model"
+  },
+  {
+    "id": "cd74e612",
+    "description": "SPECIFIC TEST CASE: \"TC21 - should fail validation when submitting without entering a Contract Start Date\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC21 - should fail validation when submitting without entering a Contract Start Date"
+  },
+  {
+    "id": "a63a5de8",
+    "description": "SPECIFIC TEST CASE: \"TC22 - should redirect back to Step 1 when clicking Back button from Step 2\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC22 - should redirect back to Step 1 when clicking Back button from Step 2"
+  },
+  {
+    "id": "ba40e32f",
+    "description": "SPECIFIC TEST CASE: \"TC23 - should allow editing basic details from the review step\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC23 - should allow editing basic details from the review step"
+  },
+  {
+    "id": "f03c656d",
+    "description": "SPECIFIC TEST CASE: \"TC24 - should allow editing job specifications from the review step\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC24 - should allow editing job specifications from the review step"
+  },
+  {
+    "id": "0095e411",
+    "description": "SPECIFIC TEST CASE: \"TC25 - should allow editing payment and contract details from the review step\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC25 - should allow editing payment and contract details from the review step"
+  },
+  {
+    "id": "7de647eb",
+    "description": "SPECIFIC TEST CASE: \"TC26 - should successfully complete and publish the final job posting\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC26 - should successfully complete and publish the final job posting"
+  },
+  {
+    "id": "cfc8fb99",
+    "description": "SPECIFIC TEST CASE: \"TC27 - should navigate back to Step 2 without losing previously entered data\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC27 - should navigate back to Step 2 without losing previously entered data"
+  },
+  {
+    "id": "6eba2c39",
+    "description": "SPECIFIC TEST CASE: \"TC28 - should support submission with Undecided Engagement model option\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerJobPost.spec.ts",
+    "grep": "TC28 - should support submission with Undecided Engagement model option"
   },
   {
     "id": "cf5cef87",
-    "description": "FILE-LEVEL TEST: Runs ALL tests inside employerLogin.spec.ts. Tests included: TC1 - Valid login redirects to dashboard, TC3 - Sign-in is not clickable when email and password are empty, TC4 - Success message is shown and OTP is requested when valid email is submitted, TC5 - Displays user doesnt exist when unregistered email is entered, TC6 - Send sign-in code button is disabled when email field is empty, TC7 - Employer is redirected to forgot password page when clicking Forgot password link.",
+    "description": "FILE-LEVEL TEST: Runs ALL tests inside employerLogin.spec.ts. Tests included: Employer Authentication & Login Suite, TC01 - should redirect employer to dashboard upon valid credentials login, TC02 - should keep sign-in button disabled when email and password fields are empty, TC03 - should display success notification and request OTP when submitting a valid work email, TC04 - should display error message when submitting an unregistered email address, TC05 - should keep send sign-in code button disabled when email input is left blank, TC06 - should transition to password recovery view when clicking forgot password link.",
     "specPath": "tests/employerLogin.spec.ts",
     "grep": null
   },
   {
-    "id": "8bc28a16",
-    "description": "SPECIFIC TEST CASE: \"TC1 - Valid login redirects to dashboard\". Use this to run ONLY this specific test.",
+    "id": "68a7455d",
+    "description": "SPECIFIC TEST CASE: \"Employer Authentication & Login Suite\". Use this to run ONLY this specific test.",
     "specPath": "tests/employerLogin.spec.ts",
-    "grep": "TC1 - Valid login redirects to dashboard"
+    "grep": "Employer Authentication & Login Suite"
   },
   {
-    "id": "3a479456",
-    "description": "SPECIFIC TEST CASE: \"TC3 - Sign-in is not clickable when email and password are empty\". Use this to run ONLY this specific test.",
+    "id": "0911fa64",
+    "description": "SPECIFIC TEST CASE: \"TC01 - should redirect employer to dashboard upon valid credentials login\". Use this to run ONLY this specific test.",
     "specPath": "tests/employerLogin.spec.ts",
-    "grep": "TC3 - Sign-in is not clickable when email and password are empty"
+    "grep": "TC01 - should redirect employer to dashboard upon valid credentials login"
   },
   {
-    "id": "8ea10956",
-    "description": "SPECIFIC TEST CASE: \"TC4 - Success message is shown and OTP is requested when valid email is submitted\". Use this to run ONLY this specific test.",
+    "id": "f91f1185",
+    "description": "SPECIFIC TEST CASE: \"TC02 - should keep sign-in button disabled when email and password fields are empty\". Use this to run ONLY this specific test.",
     "specPath": "tests/employerLogin.spec.ts",
-    "grep": "TC4 - Success message is shown and OTP is requested when valid email is submitted"
+    "grep": "TC02 - should keep sign-in button disabled when email and password fields are empty"
   },
   {
-    "id": "f50cfd35",
-    "description": "SPECIFIC TEST CASE: \"TC5 - Displays user doesnt exist when unregistered email is entered\". Use this to run ONLY this specific test.",
+    "id": "17424fc5",
+    "description": "SPECIFIC TEST CASE: \"TC03 - should display success notification and request OTP when submitting a valid work email\". Use this to run ONLY this specific test.",
     "specPath": "tests/employerLogin.spec.ts",
-    "grep": "TC5 - Displays user doesnt exist when unregistered email is entered"
+    "grep": "TC03 - should display success notification and request OTP when submitting a valid work email"
   },
   {
-    "id": "c734452a",
-    "description": "SPECIFIC TEST CASE: \"TC6 - Send sign-in code button is disabled when email field is empty\". Use this to run ONLY this specific test.",
+    "id": "71dcdff8",
+    "description": "SPECIFIC TEST CASE: \"TC04 - should display error message when submitting an unregistered email address\". Use this to run ONLY this specific test.",
     "specPath": "tests/employerLogin.spec.ts",
-    "grep": "TC6 - Send sign-in code button is disabled when email field is empty"
+    "grep": "TC04 - should display error message when submitting an unregistered email address"
   },
   {
-    "id": "2f85c265",
-    "description": "SPECIFIC TEST CASE: \"TC7 - Employer is redirected to forgot password page when clicking Forgot password link\". Use this to run ONLY this specific test.",
+    "id": "b64f206f",
+    "description": "SPECIFIC TEST CASE: \"TC05 - should keep send sign-in code button disabled when email input is left blank\". Use this to run ONLY this specific test.",
     "specPath": "tests/employerLogin.spec.ts",
-    "grep": "TC7 - Employer is redirected to forgot password page when clicking Forgot password link"
+    "grep": "TC05 - should keep send sign-in code button disabled when email input is left blank"
+  },
+  {
+    "id": "cbf0e4a6",
+    "description": "SPECIFIC TEST CASE: \"TC06 - should transition to password recovery view when clicking forgot password link\". Use this to run ONLY this specific test.",
+    "specPath": "tests/employerLogin.spec.ts",
+    "grep": "TC06 - should transition to password recovery view when clicking forgot password link"
+  },
+  {
+    "id": "30cdfeaa",
+    "description": "FILE-LEVEL TEST: Runs ALL tests inside jobs-authenticated.spec.ts. Tests included: @email Authenticated Applicant - Job Application & Filtering Flows, TC36 - should complete applicant onboarding and initiate a contract job AI interview, TC37 - should complete applicant onboarding and verify ZipRecruiter redirection for full-time jobs, TC38 - should complete applicant onboarding and verify free resume scoring redirection, TC39 - should apply employment models and date posted filters on contract jobs dashboard, TC40 - should apply employment models and preference filters on full-time opportunities dashboard.",
+    "specPath": "tests/jobs-authenticated.spec.ts",
+    "grep": null
+  },
+  {
+    "id": "2d350f90",
+    "description": "SPECIFIC TEST CASE: \"@email Authenticated Applicant - Job Application & Filtering Flows\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-authenticated.spec.ts",
+    "grep": "@email Authenticated Applicant - Job Application & Filtering Flows"
+  },
+  {
+    "id": "bc3cc8de",
+    "description": "SPECIFIC TEST CASE: \"TC36 - should complete applicant onboarding and initiate a contract job AI interview\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-authenticated.spec.ts",
+    "grep": "TC36 - should complete applicant onboarding and initiate a contract job AI interview"
+  },
+  {
+    "id": "bc1a75c8",
+    "description": "SPECIFIC TEST CASE: \"TC37 - should complete applicant onboarding and verify ZipRecruiter redirection for full-time jobs\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-authenticated.spec.ts",
+    "grep": "TC37 - should complete applicant onboarding and verify ZipRecruiter redirection for full-time jobs"
+  },
+  {
+    "id": "8e37ee8f",
+    "description": "SPECIFIC TEST CASE: \"TC38 - should complete applicant onboarding and verify free resume scoring redirection\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-authenticated.spec.ts",
+    "grep": "TC38 - should complete applicant onboarding and verify free resume scoring redirection"
+  },
+  {
+    "id": "732d7b40",
+    "description": "SPECIFIC TEST CASE: \"TC39 - should apply employment models and date posted filters on contract jobs dashboard\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-authenticated.spec.ts",
+    "grep": "TC39 - should apply employment models and date posted filters on contract jobs dashboard"
+  },
+  {
+    "id": "ba81b18e",
+    "description": "SPECIFIC TEST CASE: \"TC40 - should apply employment models and preference filters on full-time opportunities dashboard\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-authenticated.spec.ts",
+    "grep": "TC40 - should apply employment models and preference filters on full-time opportunities dashboard"
+  },
+  {
+    "id": "7b85cd14",
+    "description": "FILE-LEVEL TEST: Runs ALL tests inside jobs-unauthenticated.spec.ts. Tests included: Public Job Openings - Unauthenticated Flows, TC30 - should allow searching for job openings by keyword, TC31 - should allow filtering job openings by date posted and employment model, TC32 - should display apply and sign-up buttons and redirect to ZipRecruiter upon applying, TC33 - should redirect to sign-up page when clicking sign-up from job details, TC34 - should copy job detail link directly from openings list card and display success feedback, TC35 - should copy job link from full job details view and display success feedback.",
+    "specPath": "tests/jobs-unauthenticated.spec.ts",
+    "grep": null
+  },
+  {
+    "id": "15badcb9",
+    "description": "SPECIFIC TEST CASE: \"Public Job Openings - Unauthenticated Flows\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-unauthenticated.spec.ts",
+    "grep": "Public Job Openings - Unauthenticated Flows"
+  },
+  {
+    "id": "333f631f",
+    "description": "SPECIFIC TEST CASE: \"TC30 - should allow searching for job openings by keyword\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-unauthenticated.spec.ts",
+    "grep": "TC30 - should allow searching for job openings by keyword"
+  },
+  {
+    "id": "e0f1c9a7",
+    "description": "SPECIFIC TEST CASE: \"TC31 - should allow filtering job openings by date posted and employment model\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-unauthenticated.spec.ts",
+    "grep": "TC31 - should allow filtering job openings by date posted and employment model"
+  },
+  {
+    "id": "cc44cadf",
+    "description": "SPECIFIC TEST CASE: \"TC32 - should display apply and sign-up buttons and redirect to ZipRecruiter upon applying\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-unauthenticated.spec.ts",
+    "grep": "TC32 - should display apply and sign-up buttons and redirect to ZipRecruiter upon applying"
+  },
+  {
+    "id": "bdc76d44",
+    "description": "SPECIFIC TEST CASE: \"TC33 - should redirect to sign-up page when clicking sign-up from job details\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-unauthenticated.spec.ts",
+    "grep": "TC33 - should redirect to sign-up page when clicking sign-up from job details"
+  },
+  {
+    "id": "0dcf2686",
+    "description": "SPECIFIC TEST CASE: \"TC34 - should copy job detail link directly from openings list card and display success feedback\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-unauthenticated.spec.ts",
+    "grep": "TC34 - should copy job detail link directly from openings list card and display success feedback"
+  },
+  {
+    "id": "38b49168",
+    "description": "SPECIFIC TEST CASE: \"TC35 - should copy job link from full job details view and display success feedback\". Use this to run ONLY this specific test.",
+    "specPath": "tests/jobs-unauthenticated.spec.ts",
+    "grep": "TC35 - should copy job link from full job details view and display success feedback"
   }
 ]

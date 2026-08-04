@@ -10,3 +10,46 @@ test-gemini.js
 playwright/.auth
 trace_output/
 
+# Ignore images
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Ignore HTML dumps
+*.html
+
+# Ignore temporary diagnostic scripts and scratch runners
+dump*.js
+dump*.ts
+debug*.js
+debug*.ts
+fix*.js
+fix*.ts
+modify*.js
+*.py
+*.mjs
+click_daily.ts
+find_daily.ts
+evaluate_contact.js
+evaluate_min_exp.js
+
+# Ignore scratch files
+tests/scratch*
+scratch*
+tests/intercept*
+
+# Ignore temporary JSON files
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+tests/email_counter.json
+!tests/annotations*.json
+
+# Ignore generated resume PDFs and temp files in fixtures
+fixtures/resume_*.pdf
+fixtures/email_index.txt
+
+# Ignore log files
+*.log

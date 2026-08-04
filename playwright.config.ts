@@ -1,4 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
 
 export default defineConfig({
   testDir: './tests',
@@ -18,8 +20,12 @@ export default defineConfig({
   ],
   projects: [
     {
+      name: 'warmup',
+      testMatch: /.*warmup\.setup\.ts/,
+    },
+    {
       name: 'setup',
-      testMatch: /.*\.setup\.ts/,
+      testMatch: /.*auth\.setup\.ts/,
     },
     {
       name: 'chromium',
@@ -27,7 +33,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/user.json',
       },
-      dependencies: ['setup'],
+      dependencies: ['setup', 'warmup'],
     },
   ],
   use: {

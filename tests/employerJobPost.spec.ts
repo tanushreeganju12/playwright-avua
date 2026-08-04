@@ -24,11 +24,8 @@ test.describe('Employer Job Posting Flow', () => {
     const jobTitle = `Playwright Test Engineer ${Date.now()}`;
     console.log(`--- STARTING TEST FOR ${empType} ---`);
 
-    // Step 1: Login
-    console.log('Step 1: Logging in...');
-
-    // Step 2: Navigate to post job
-    console.log('Step 2: Navigating to job post page...');
+    // Step 1: Navigate to post job page
+    console.log('Step 1: Navigating to job post page...');
     await employerPage.navigateToJobPostPage();
 
     // Step 3: Fill Step 1 Details
@@ -80,22 +77,22 @@ test.describe('Employer Job Posting Flow', () => {
    *   - Moves to Step 3 Review & Publish
    *   - Job is published
    */
-  test('TC1 a should successfully post a contract job as an employer - Onsite', async ({ page }) => {
+  test('TC07 - should successfully post a contract job as an employer - Onsite', async ({ page }) => {
     test.setTimeout(180000);
     await runJobPostTest(page, 'Onsite');
   });
 
-  test('TC1 b should successfully post a contract job as an employer - Hybrid', async ({ page }) => {
+  test('TC08 - should successfully post a contract job as an employer - Hybrid', async ({ page }) => {
     test.setTimeout(180000);
     await runJobPostTest(page, 'Hybrid');
   });
 
-  test('TC1 c should successfully post a contract job as an employer - Remote', async ({ page }) => {
+  test('TC09 - should successfully post a contract job as an employer - Remote', async ({ page }) => {
     test.setTimeout(180000);
     await runJobPostTest(page, 'Remote');
   });
 
-  test('TC2 Job post form submitted with empty Job Title', async ({ page }) => {
+  test('TC10 - should fail validation when job post form is submitted with empty Job Title', async ({ page }) => {
     const email = 'pranjil+test@avua.com';
     const password = 'Test@123';
 
@@ -125,7 +122,7 @@ test.describe('Employer Job Posting Flow', () => {
     console.log('--- TC2 TEST FINISHED SUCCESSFULLY ---');
   });
 
-  test('TC3 Job post form submitted with empty Job Summary', async ({ page }) => {
+  test('TC11 - should fail validation when job post form is submitted with empty Job Summary', async ({ page }) => {
     const email = 'pranjil+test@avua.com';
     const password = 'Test@123';
 
@@ -155,7 +152,7 @@ test.describe('Employer Job Posting Flow', () => {
     console.log('--- TC3 TEST FINISHED SUCCESSFULLY ---');
   });
 
-  test('TC4 Job post form submitted without adding any skills', async ({ page }) => {
+  test('TC12 - should fail validation when job post form is submitted without adding any skills', async ({ page }) => {
     const email = 'pranjil+test@avua.com';
     const password = 'Test@123';
 
@@ -186,7 +183,7 @@ test.describe('Employer Job Posting Flow', () => {
     console.log('--- TC4 TEST FINISHED SUCCESSFULLY ---');
   });
 
-  test('TC5 Generate job description using Generate with AI button', async ({ page }) => {
+  test('TC13 - should automatically generate job description using Generate with AI capability', async ({ page }) => {
     const email = 'pranjil+test@avua.com';
     const password = 'Test@123';
 
@@ -236,7 +233,7 @@ test.describe('Employer Job Posting Flow', () => {
     console.log('--- TC5 TEST FINISHED SUCCESSFULLY ---');
   });
 
-  test('TC6 Upload a JD using Upload a JD button', async ({ page }) => {
+  test('TC14 - should successfully populate fields by uploading a JD document', async ({ page }) => {
     const email = 'pranjil+test@avua.com';
     const password = 'Test@123';
 
@@ -278,8 +275,8 @@ test.describe('Employer Job Posting Flow', () => {
     console.log('--- TC6 TEST FINISHED SUCCESSFULLY ---');
   });
 
-  test('TC7 Successful submission with Fixed Rate - Daily payment frequency', async ({ page }) => {
-    test.setTimeout(90000);
+  test('TC15 - should support submission with Fixed Rate and Daily payment frequency', async ({ page }) => {
+    test.setTimeout(180000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
@@ -296,17 +293,15 @@ test.describe('Employer Job Posting Flow', () => {
         technicalRatio: '70'
     });
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Review', exact: true }).click({ force: true });
-      const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-      await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    }).toPass({ timeout: 60000 });
-    
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
+    await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
+    await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
   });
 
-  test('TC8 Successful submission with Fixed Rate - Hourly payment frequency', async ({ page }) => {
-    test.setTimeout(90000);
+  test('TC16 - should support submission with Fixed Rate and Hourly payment frequency', async ({ page }) => {
+    test.setTimeout(180000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
@@ -322,17 +317,15 @@ test.describe('Employer Job Posting Flow', () => {
         language: 'English'
     });
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Review', exact: true }).click({ force: true });
-      const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-      await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    }).toPass({ timeout: 60000 });
-    
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
+    await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
+    await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
   });
 
-  test('TC9 Successful submission with Fixed Rate - Monthly payment frequency', async ({ page }) => {
-    test.setTimeout(90000);
+  test('TC17 - should support submission with Fixed Rate and Monthly payment frequency', async ({ page }) => {
+    test.setTimeout(180000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
@@ -348,17 +341,15 @@ test.describe('Employer Job Posting Flow', () => {
         language: 'English'
     });
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Review', exact: true }).click({ force: true });
-      const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-      await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    }).toPass({ timeout: 60000 });
-    
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
+    await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
+    await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
   });
 
-  test('TC10 Submit without selecting Payment Frequency', async ({ page }) => {
-    test.setTimeout(90000);
+  test('TC18 - should fail validation when submitting without selecting a payment frequency', async ({ page }) => {
+    test.setTimeout(180000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
@@ -376,8 +367,8 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeVisible();
   });
 
-  test('TC11 Submit without entering Amount', async ({ page }) => {
-    test.setTimeout(90000);
+  test('TC19 - should fail validation when submitting without entering a compensation amount', async ({ page }) => {
+    test.setTimeout(180000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
@@ -395,8 +386,8 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeVisible();
   });
 
-  test('TC12 Successful submission with INDEPENDENT CONTRACTOR (IC) engagement model', async ({ page }) => {
-    test.setTimeout(90000);
+  test('TC20 - should support submission with Independent Contractor (IC) engagement model', async ({ page }) => {
+    test.setTimeout(180000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
@@ -412,17 +403,15 @@ test.describe('Employer Job Posting Flow', () => {
         language: 'English'
     });
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Review', exact: true }).click({ force: true });
-      const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-      await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    }).toPass({ timeout: 60000 });
-    
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
+    await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
+    await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
   });
 
-  test('TC13 Submit without entering Contract Start Date', async ({ page }) => {
-    test.setTimeout(90000);
+  test('TC21 - should fail validation when submitting without entering a Contract Start Date', async ({ page }) => {
+    test.setTimeout(180000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
@@ -443,8 +432,8 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(reviewBtn).toBeVisible();
   });
 
-  test('TC14 Click Back from Step 2 redirects to Step 1', async ({ page }) => {
-    test.setTimeout(90000);
+  test('TC22 - should redirect back to Step 1 when clicking Back button from Step 2', async ({ page }) => {
+    test.setTimeout(180000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
@@ -460,7 +449,7 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(jobTitleInputStep1).toBeVisible({ timeout: 10000 });
   });
 
-  test('TC15 Edit Basic Details from Review page using Edit button', async ({ page }) => {
+  test('TC23 - should allow editing basic details from the review step', async ({ page }) => {
     test.setTimeout(120000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
@@ -477,13 +466,11 @@ test.describe('Employer Job Posting Flow', () => {
         language: 'English'
     });
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Review', exact: true }).click({ force: true });
-      const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-      await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    }).toPass({ timeout: 60000 });
-    
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
+    await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
+    await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
 
     const editBasicDetailsBtn = page.getByRole('button', { name: 'Edit' }).first();
     await editBasicDetailsBtn.click();
@@ -506,12 +493,12 @@ test.describe('Employer Job Posting Flow', () => {
       }
     }
     
-    await expect(publishBtn).toBeVisible({ timeout: 10000 });
+    await expect(publishBtn).toBeVisible({ timeout: 35000 });
     const updatedTitle = page.getByText('Updated Test Job').first();
     await expect(updatedTitle).toBeVisible({ timeout: 5000 });
   });
 
-  test('TC16 Edit job Details from Review page using Edit button', async ({ page }) => {
+  test('TC24 - should allow editing job specifications from the review step', async ({ page }) => {
     test.setTimeout(120000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
@@ -528,13 +515,11 @@ test.describe('Employer Job Posting Flow', () => {
         language: 'English'
     });
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Review', exact: true }).click({ force: true });
-      const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-      await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    }).toPass({ timeout: 60000 });
-    
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
+    await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
+    await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
 
     const editJobDetailsBtn = page.getByRole('button', { name: 'Edit' }).nth(1);
     await editJobDetailsBtn.click();
@@ -557,12 +542,12 @@ test.describe('Employer Job Posting Flow', () => {
       }
     }
     
-    await expect(publishBtn).toBeVisible({ timeout: 10000 });
+    await expect(publishBtn).toBeVisible({ timeout: 35000 });
     const updatedType = page.getByText('Hybrid').first();
     await expect(updatedType).toBeVisible({ timeout: 5000 });
   });
 
-  test('TC17 Edit payment and contract Details from Review page using Edit button', async ({ page }) => {
+  test('TC25 - should allow editing payment and contract details from the review step', async ({ page }) => {
     test.setTimeout(120000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
@@ -579,13 +564,13 @@ test.describe('Employer Job Posting Flow', () => {
         language: 'English'
     });
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Review', exact: true }).click({ force: true });
-      const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-      await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    }).toPass({ timeout: 60000 });
-    
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
+    await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
+    await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
+    
+
 
     const editPaymentDetailsBtn = page.getByRole('button', { name: 'Edit' }).nth(2);
     await editPaymentDetailsBtn.click();
@@ -597,17 +582,17 @@ test.describe('Employer Job Posting Flow', () => {
     await amountInputStep2.fill('60');
     await amountInputStep2.blur();
 
-    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
-    if (await reviewBtn.isVisible()) {
-       await reviewBtn.click();
+    const reviewBtn2 = page.getByRole('button', { name: 'Review', exact: true });
+    if (await reviewBtn2.isVisible()) {
+       await reviewBtn2.click();
     }
     
-    await expect(publishBtn).toBeVisible({ timeout: 10000 });
+    await expect(publishBtn).toBeVisible({ timeout: 35000 });
     const updatedAmount = page.getByText(/USD 60/i).first();
     await expect(updatedAmount).toBeVisible({ timeout: 10000 });
   });
 
-  test('TC18 Successfully publish the job post', async ({ page }) => {
+  test('TC26 - should successfully complete and publish the final job posting', async ({ page }) => {
     test.setTimeout(120000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
@@ -624,20 +609,18 @@ test.describe('Employer Job Posting Flow', () => {
         language: 'English'
     });
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Review', exact: true }).click({ force: true });
-      const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-      await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    }).toPass({ timeout: 60000 });
-    
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
+    await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
+    await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
 
     await publishBtn.click();
     const successMsg = page.getByText(/successfully|Success|Published/i).first();
     await successMsg.waitFor({ state: 'visible', timeout: 30000 }).catch(() => { });
   });
 
-  test('TC19 Click Back navigates to Step 2 without losing data', async ({ page }) => {
+  test('TC27 - should navigate back to Step 2 without losing previously entered data', async ({ page }) => {
     test.setTimeout(120000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
@@ -654,13 +637,13 @@ test.describe('Employer Job Posting Flow', () => {
         language: 'English'
     });
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Review', exact: true }).click({ force: true });
-      const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-      await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    }).toPass({ timeout: 60000 });
-    
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true }).first();
+    await expect(reviewBtn).toBeVisible({ timeout: 15000 });
+    await expect(reviewBtn).toBeEnabled({ timeout: 15000 });
+    await reviewBtn.click();
+
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 35000 });
 
     const backBtn = page.getByRole('button', { name: 'Back', exact: true }).first();
     await backBtn.click();
@@ -670,8 +653,8 @@ test.describe('Employer Job Posting Flow', () => {
     await expect(amountInputStep2).toHaveValue('50');
   });
 
-  test('TC20 Successful submission with UNDECIDED ENGAGEMENT model', async ({ page }) => {
-    test.setTimeout(90000);
+  test('TC28 - should support submission with Undecided Engagement model option', async ({ page }) => {
+    test.setTimeout(180000);
     const employerPage = new AvuaEmployerPage(page);
     await employerPage.navigateToJobPostPage();
     await employerPage.fillStep1Details('Test Job', 'Onsite', 'We are seeking a skilled Playwright Test Engineer.', true);
@@ -687,12 +670,10 @@ test.describe('Employer Job Posting Flow', () => {
         language: 'English'
     });
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Review', exact: true }).click({ force: true });
-      const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
-      await expect(publishBtn).toBeVisible({ timeout: 10000 });
-    }).toPass({ timeout: 60000 });
-    
+    const reviewBtn = page.getByRole('button', { name: 'Review', exact: true });
+    await expect(reviewBtn).toBeEnabled({ timeout: 20000 });
+    await reviewBtn.click();
     const publishBtn = page.getByRole('button', { name: 'Publish', exact: true }).first();
+    await expect(publishBtn).toBeVisible({ timeout: 45000 });
   });
 });

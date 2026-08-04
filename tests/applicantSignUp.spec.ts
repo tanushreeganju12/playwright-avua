@@ -3,7 +3,7 @@ import { AvuaSignUpPage } from '../pages/AvuaSignUpPage';
 import { generateResume } from '../utils/pdfGenerator';
 import fs from 'fs';
 
-test.describe('Applicant Sign-Up Flow', () => {
+test.describe('@email Applicant Sign-Up Flow', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
   test.afterEach(async ({ page }, testInfo) => {
@@ -15,7 +15,7 @@ test.describe('Applicant Sign-Up Flow', () => {
     }
   });
 
-  test('should sign up applicant via resume upload and AI-prefilled form', async ({ page }) => {
+  test('TC29 - should sign up applicant via resume upload and AI-prefilled form', async ({ page }) => {
     const signUpPage = new AvuaSignUpPage(page);
     const shortTimestamp = Date.now().toString().slice(-6);
     const email = `user${shortTimestamp}@avua.com`;
@@ -23,7 +23,7 @@ test.describe('Applicant Sign-Up Flow', () => {
 
     // Generate a fresh resume so the AI parser treats this as a brand-new sign-up
     await generateResume({
-      name: 'Aakarshit Sharma',
+      name: 'Tanushree Ganju',
       email: email,
       jobTitle: 'iOS Developer',
       outputPath: dynamicResumePath,
@@ -32,7 +32,7 @@ test.describe('Applicant Sign-Up Flow', () => {
     await signUpPage.goToApplicantSignUpPage();
     await signUpPage.uploadResume(dynamicResumePath);
     await signUpPage.waitForAiPrefill();
-    
+
     // The email will be readonly and pre-filled by the AI. We don't need to update it.
     await signUpPage.fillJobTitle('iOS Developer');
     await signUpPage.fillCurrentCompany('Etizas');
