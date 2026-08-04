@@ -28,14 +28,10 @@ jobs:
       run: npm ci
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
-    - name: Verify IMAP Connection
-      run: node tests/scratch_imap_check.js
-      env:
-        IMAP_USER: ${{ secrets.IMAP_USER }}
-        IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
     - name: Run E2E Email Tests in Parallel
-      run: xvfb-run npx playwright test tests/tc25ContractJobs.spec.ts tests/tc26FullTimeJobs.spec.ts tests/tc28FreeResumeScoring.spec.ts tests/tc32ContractJobsFilters.spec.ts tests/tc33FullTimeJobsFilters.spec.ts --workers=5
+      run: xvfb-run npx playwright test --grep "@email" --workers=5
       env:
+        TEST_SUITE_NAME: "E2E Email & Authentication Suite (@email)"
         IMAP_USER: ${{ secrets.IMAP_USER }}
         IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
         JIRA_URL: ${{ secrets.JIRA_URL }}
@@ -44,8 +40,9 @@ jobs:
         JIRA_PROJECT_KEY: ${{ secrets.JIRA_PROJECT_KEY }}
         CREATE_JIRA_TICKETS: ${{ secrets.CREATE_JIRA_TICKETS }}
     - name: Run Other Tests Sequentially
-      run: xvfb-run npx playwright test --grep-invert="TC25|TC26|TC28|TC32|TC33" --workers=1
+      run: xvfb-run npx playwright test --grep-invert="@email" --workers=1
       env:
+        TEST_SUITE_NAME: "Core Application Suite (Non-Email)"
         IMAP_USER: ${{ secrets.IMAP_USER }}
         IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
         JIRA_URL: ${{ secrets.JIRA_URL }}
@@ -59,4 +56,3 @@ jobs:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
-

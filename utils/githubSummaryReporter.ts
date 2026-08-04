@@ -1,4 +1,4 @@
-import { FullResult, Reporter, Suite } from '@playwright/test/reporter';
+import { FullResult, Reporter, Suite, TestCase } from '@playwright/test/reporter';
 import fs from 'fs';
 
 class GithubSummaryReporter implements Reporter {
@@ -12,20 +12,22 @@ class GithubSummaryReporter implements Reporter {
   onEnd(result: FullResult) {
     console.log('[GithubSummaryReporter] Generating summary...');
     const summaryFile = process.env.GITHUB_STEP_SUMMARY;
-    if (!summaryFile) {
-      console.log('[GithubSummaryReporter] WARNING: GITHUB_STEP_SUMMARY is not set in this environment.');
-    }
+    const suiteName = process.env.TEST_SUITE_NAME || 'Playwright Test Results';
 
     let passed = 0;
     let failed = 0;
     let flaky = 0;
     let skipped = 0;
+    const failedTestTitles: string[] = [];
 
     const countTests = (suite: Suite) => {
       for (const test of suite.tests) {
         const outcome = test.outcome();
         if (outcome === 'expected') passed++;
-        else if (outcome === 'unexpected') failed++;
+        else if (outcome === 'unexpected') {
+          failed++;
+          failedTestTitles.push(test.title);
+        }
         else if (outcome === 'flaky') flaky++;
         else if (outcome === 'skipped') skipped++;
       }
@@ -41,8 +43,8 @@ class GithubSummaryReporter implements Reporter {
     const total = passed + failed + flaky + skipped;
     const statusIcon = result.status === 'passed' ? '✅' : '❌';
     
-    const summary = `
-## ${statusIcon} Playwright Test Results
+    let summary = `
+## ${statusIcon} ${suiteName}
 
 | Status | Count |
 | --- | --- |
@@ -55,6 +57,13 @@ class GithubSummaryReporter implements Reporter {
 **Duration:** ${(result.duration / 1000).toFixed(1)}s
 `;
 
+    if (failedTestTitles.length > 0) {
+      summary += `\n### ❌ Failed Test Cases:\n`;
+      for (const title of failedTestTitles) {
+        summary += `- ${title}\n`;
+      }
+    }
+
     if (summaryFile) {
       try {
         fs.appendFileSync(summaryFile, summary + '\n');
@@ -63,7 +72,7 @@ class GithubSummaryReporter implements Reporter {
         console.error('[GithubSummaryReporter] Failed to write to GITHUB_STEP_SUMMARY', e);
       }
     } else {
-      console.log('::group::Playwright Test Summary');
+      console.log('::group::' + suiteName);
       console.log(summary);
       console.log('::endgroup::');
     }

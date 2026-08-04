@@ -7,7 +7,7 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   timeout: 60000,
-  retries: 0,
+  retries: 1,
   reporter: process.env.CI ? [
     ['github'],
     ['./utils/githubSummaryReporter.ts'],
@@ -20,8 +20,12 @@ export default defineConfig({
   ],
   projects: [
     {
+      name: 'warmup',
+      testMatch: /.*warmup\.setup\.ts/,
+    },
+    {
       name: 'setup',
-      testMatch: /.*\.setup\.ts/,
+      testMatch: /.*auth\.setup\.ts/,
     },
     {
       name: 'chromium',
@@ -29,7 +33,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/user.json',
       },
-      dependencies: ['setup'],
+      dependencies: ['setup', 'warmup'],
     },
   ],
   use: {

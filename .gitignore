@@ -26,8 +26,6 @@ debug*.js
 debug*.ts
 fix*.js
 fix*.ts
-test*.js
-test*.ts
 modify*.js
 *.py
 *.mjs
@@ -46,11 +44,11 @@ tests/intercept*
 !package.json
 !package-lock.json
 !tsconfig.json
-!tests/email_counter.json
+tests/email_counter.json
 !tests/annotations*.json
 
 # Ignore generated resume PDFs and temp files in fixtures
-fixtures/resume_tc*.pdf
+fixtures/resume_*.pdf
 fixtures/email_index.txt
 
 # Ignore log files
